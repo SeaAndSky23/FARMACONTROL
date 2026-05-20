@@ -27,21 +27,32 @@ public class PanelTrabajadores extends javax.swing.JPanel {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+        btncerrar = new javax.swing.JButton();
 
         setMinimumSize(new java.awt.Dimension(883, 448));
         setPreferredSize(new java.awt.Dimension(883, 448));
 
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setPreferredSize(new java.awt.Dimension(883, 448));
+
+        btncerrar.setText("CERRAR");
+        btncerrar.addActionListener(this::btncerrarActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 883, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(356, 356, 356)
+                .addComponent(btncerrar)
+                .addContainerGap(454, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 448, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(182, 182, 182)
+                .addComponent(btncerrar)
+                .addContainerGap(243, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -58,8 +69,20 @@ public class PanelTrabajadores extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btncerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btncerrarActionPerformed
+        java.awt.Container padre = this.getParent();
+    
+    if (padre != null) {
+        padre.remove(this);
+        
+        padre.revalidate();
+        padre.repaint();
+    }
+    }//GEN-LAST:event_btncerrarActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btncerrar;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 }
