@@ -5,6 +5,8 @@
 package GUI;
 
 import java.awt.CardLayout;
+import java.net.URL;
+import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 /**
@@ -12,22 +14,28 @@ import javax.swing.SwingUtilities;
  * @author USUARIO
  */
 public class INICIO_ADMIN extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(INICIO_ADMIN.class.getName());
 
     /**
      * Creates new form INICIO_ADMIN
      */
-    
-    PanelTrabajadores ptrabajadores = new PanelTrabajadores ();
+    PanelTrabajadores ptrabajadores = new PanelTrabajadores();
     CardLayout vista;
+
     public INICIO_ADMIN() {
         initComponents();
         this.setExtendedState(INICIO_ADMIN.MAXIMIZED_BOTH);
         java.awt.GraphicsEnvironment env = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
-    this.setMaximizedBounds(env.getMaximumWindowBounds());
-    this.setExtendedState(INICIO_ADMIN.MAXIMIZED_BOTH);
-    vista = (CardLayout) pinicioadmin.getLayout();
+        this.setMaximizedBounds(env.getMaximumWindowBounds());
+        vista = (CardLayout) pinicioadmin.getLayout();
+        icono_formulario();
+    }
+
+    public void icono_formulario() {
+        URL url = getClass().getResource("/imagenes/ICONO_SISTEMA.png");
+        ImageIcon icono_formulario = new ImageIcon(url);
+        setIconImage(icono_formulario.getImage());
     }
 
     /**
@@ -40,7 +48,6 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     private void initComponents() {
 
         pinicioadmin = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         cusuarios = new javax.swing.JMenu();
         mtrabajadores = new javax.swing.JMenuItem();
@@ -57,12 +64,10 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         creportes = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("BIENVENIDO AL SISTEMA DE CONTROL COMERCIAL");
 
         pinicioadmin.setBackground(new java.awt.Color(255, 255, 255));
         pinicioadmin.setLayout(new java.awt.CardLayout());
-
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/8072883 (1).png"))); // NOI18N
-        pinicioadmin.add(jLabel1, "card2");
 
         cusuarios.setText("USUARIOS");
 
@@ -128,7 +133,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void mtrabajadoresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mtrabajadoresActionPerformed
-        pinicioadmin.add(ptrabajadores,"adm Trabajadores");
+        pinicioadmin.add(ptrabajadores, "adm Trabajadores");
         vista.show(pinicioadmin, "adm Trabajadores");
         SwingUtilities.updateComponentTreeUI(this);
         this.repaint();
@@ -166,7 +171,6 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     private javax.swing.JMenu creportes;
     private javax.swing.JMenu cusuarios;
     private javax.swing.JMenu cventas;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem mc_apertura;
     private javax.swing.JCheckBoxMenuItem mc_cierre;

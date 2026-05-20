@@ -4,6 +4,9 @@
  */
 package GUI;
 
+import java.net.URL;
+import javax.swing.ImageIcon;
+
 /**
  *
  * @author USUARIO
@@ -17,8 +20,15 @@ public class INICIO_SESION extends javax.swing.JFrame {
      */
     public INICIO_SESION() {
         initComponents();
+        icono_formulario();
     }
 
+    public void icono_formulario() {
+        URL url = getClass().getResource("/imagenes/ICONO_SISTEMA.png");
+        ImageIcon icono_formulario = new ImageIcon(url);
+        setIconImage(icono_formulario.getImage());
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
