@@ -21,6 +21,8 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
      * Creates new form INICIO_ADMIN
      */
     
+    pcierre panelcierre = new pcierre();
+    papertura panelapertura = new papertura();
     pmercaderia panelmercaderia = new pmercaderia();
     proles panelusuarios = new proles();
     ptrabajadores paneltrabajadores = new ptrabajadores();
@@ -109,9 +111,11 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         ccaja.setText("CAJA");
 
         mc_apertura.setText("APERTURA");
+        mc_apertura.addActionListener(this::mc_aperturaActionPerformed);
         ccaja.add(mc_apertura);
 
         mc_cierre.setText("CIERRE");
+        mc_cierre.addActionListener(this::mc_cierreActionPerformed);
         ccaja.add(mc_cierre);
 
         jMenuBar1.add(ccaja);
@@ -155,6 +159,20 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         SwingUtilities.updateComponentTreeUI(this);
         this.repaint();
     }//GEN-LAST:event_ming_productoActionPerformed
+
+    private void mc_aperturaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mc_aperturaActionPerformed
+        pinicioadmin.add(panelapertura, "aperturar caja");
+        vista.show(pinicioadmin, "aperturar caja");
+        SwingUtilities.updateComponentTreeUI(this);
+        this.repaint();
+    }//GEN-LAST:event_mc_aperturaActionPerformed
+
+    private void mc_cierreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mc_cierreActionPerformed
+        pinicioadmin.add(panelcierre, "cierre caja");
+        vista.show(pinicioadmin, "cierre caja");
+        SwingUtilities.updateComponentTreeUI(this);
+        this.repaint();
+    }//GEN-LAST:event_mc_cierreActionPerformed
 
     /**
      * @param args the command line arguments

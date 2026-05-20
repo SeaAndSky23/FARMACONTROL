@@ -75,11 +75,17 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="APERTURA"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mc_aperturaActionPerformed"/>
+              </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="mc_cierre">
               <Properties>
                 <Property name="text" type="java.lang.String" value="CIERRE"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mc_cierreActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
