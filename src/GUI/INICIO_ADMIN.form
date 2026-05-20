@@ -6,7 +6,7 @@
       <SubComponents>
         <Menu class="javax.swing.JMenu" name="cusuarios">
           <Properties>
-            <Property name="text" type="java.lang.String" value="USUARIOS"/>
+            <Property name="text" type="java.lang.String" value="SEGURIDAD"/>
           </Properties>
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="mtrabajadores">
@@ -17,10 +17,13 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mtrabajadoresActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="mroles">
+            <MenuItem class="javax.swing.JMenuItem" name="musuarios">
               <Properties>
-                <Property name="text" type="java.lang.String" value="ROLES"/>
+                <Property name="text" type="java.lang.String" value="USUARIOS"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="musuariosActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
@@ -29,11 +32,13 @@
             <Property name="text" type="java.lang.String" value="MERCADERIA"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JCheckBoxMenuItem" name="ming_producto">
+            <MenuItem class="javax.swing.JMenuItem" name="ming_producto">
               <Properties>
-                <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="INGRESO PRODUCTO"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ming_productoActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
@@ -71,9 +76,8 @@
                 <Property name="text" type="java.lang.String" value="APERTURA"/>
               </Properties>
             </MenuItem>
-            <MenuItem class="javax.swing.JCheckBoxMenuItem" name="mc_cierre">
+            <MenuItem class="javax.swing.JMenuItem" name="mc_cierre">
               <Properties>
-                <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="CIERRE"/>
               </Properties>
             </MenuItem>
@@ -111,12 +115,12 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="pinicioadmin" alignment="0" max="32767" attributes="0"/>
+          <Component id="pinicioadmin" alignment="0" pref="746" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="pinicioadmin" alignment="0" max="32767" attributes="0"/>
+          <Component id="pinicioadmin" alignment="0" pref="496" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>

@@ -20,7 +20,10 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     /**
      * Creates new form INICIO_ADMIN
      */
-    PanelTrabajadores ptrabajadores = new PanelTrabajadores();
+    
+    pmercaderia panelmercaderia = new pmercaderia();
+    proles panelusuarios = new proles();
+    ptrabajadores paneltrabajadores = new ptrabajadores();
     CardLayout vista;
 
     public INICIO_ADMIN() {
@@ -51,16 +54,16 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         cusuarios = new javax.swing.JMenu();
         mtrabajadores = new javax.swing.JMenuItem();
-        mroles = new javax.swing.JMenuItem();
+        musuarios = new javax.swing.JMenuItem();
         cmercaderia = new javax.swing.JMenu();
-        ming_producto = new javax.swing.JCheckBoxMenuItem();
+        ming_producto = new javax.swing.JMenuItem();
         calmacen = new javax.swing.JMenu();
         ming_almacen = new javax.swing.JMenuItem();
         cventas = new javax.swing.JMenu();
         mreg_venta = new javax.swing.JMenuItem();
         ccaja = new javax.swing.JMenu();
         mc_apertura = new javax.swing.JMenuItem();
-        mc_cierre = new javax.swing.JCheckBoxMenuItem();
+        mc_cierre = new javax.swing.JMenuItem();
         creportes = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -69,21 +72,22 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         pinicioadmin.setBackground(new java.awt.Color(255, 255, 255));
         pinicioadmin.setLayout(new java.awt.CardLayout());
 
-        cusuarios.setText("USUARIOS");
+        cusuarios.setText("SEGURIDAD");
 
         mtrabajadores.setText("TRABAJADORES");
         mtrabajadores.addActionListener(this::mtrabajadoresActionPerformed);
         cusuarios.add(mtrabajadores);
 
-        mroles.setText("ROLES");
-        cusuarios.add(mroles);
+        musuarios.setText("USUARIOS");
+        musuarios.addActionListener(this::musuariosActionPerformed);
+        cusuarios.add(musuarios);
 
         jMenuBar1.add(cusuarios);
 
         cmercaderia.setText("MERCADERIA");
 
-        ming_producto.setSelected(true);
         ming_producto.setText("INGRESO PRODUCTO");
+        ming_producto.addActionListener(this::ming_productoActionPerformed);
         cmercaderia.add(ming_producto);
 
         jMenuBar1.add(cmercaderia);
@@ -107,7 +111,6 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         mc_apertura.setText("APERTURA");
         ccaja.add(mc_apertura);
 
-        mc_cierre.setSelected(true);
         mc_cierre.setText("CIERRE");
         ccaja.add(mc_cierre);
 
@@ -122,22 +125,36 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pinicioadmin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(pinicioadmin, javax.swing.GroupLayout.DEFAULT_SIZE, 746, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pinicioadmin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(pinicioadmin, javax.swing.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void mtrabajadoresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mtrabajadoresActionPerformed
-        pinicioadmin.add(ptrabajadores, "adm Trabajadores");
+        pinicioadmin.add(paneltrabajadores, "adm Trabajadores");
         vista.show(pinicioadmin, "adm Trabajadores");
         SwingUtilities.updateComponentTreeUI(this);
         this.repaint();
     }//GEN-LAST:event_mtrabajadoresActionPerformed
+
+    private void musuariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_musuariosActionPerformed
+         pinicioadmin.add(panelusuarios, "adm USUARIOS");
+        vista.show(pinicioadmin, "adm USUARIOS");
+        SwingUtilities.updateComponentTreeUI(this);
+        this.repaint();
+    }//GEN-LAST:event_musuariosActionPerformed
+
+    private void ming_productoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ming_productoActionPerformed
+        pinicioadmin.add(panelmercaderia, "ingresar mercaderia");
+        vista.show(pinicioadmin, "ingresar mercaderia");
+        SwingUtilities.updateComponentTreeUI(this);
+        this.repaint();
+    }//GEN-LAST:event_ming_productoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -173,12 +190,12 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     private javax.swing.JMenu cventas;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem mc_apertura;
-    private javax.swing.JCheckBoxMenuItem mc_cierre;
+    private javax.swing.JMenuItem mc_cierre;
     private javax.swing.JMenuItem ming_almacen;
-    private javax.swing.JCheckBoxMenuItem ming_producto;
+    private javax.swing.JMenuItem ming_producto;
     private javax.swing.JMenuItem mreg_venta;
-    private javax.swing.JMenuItem mroles;
     private javax.swing.JMenuItem mtrabajadores;
+    private javax.swing.JMenuItem musuarios;
     private javax.swing.JPanel pinicioadmin;
     // End of variables declaration//GEN-END:variables
 }
