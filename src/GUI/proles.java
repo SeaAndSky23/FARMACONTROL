@@ -4,6 +4,11 @@
  */
 package GUI;
 
+import dao.UsuarioDAO;
+import modelo.Trabajador;
+import modelo.Rol;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author USUARIO
@@ -15,6 +20,23 @@ public class proles extends javax.swing.JPanel {
      */
     public proles() {
         initComponents();
+        cargarCombos();
+    }
+
+    private void cargarCombos() {
+        UsuarioDAO dao = new UsuarioDAO();
+
+        // Cargar Trabajadores sin usuario asignado
+        cmbTrabajador.removeAllItems();
+        for (modelo.Trabajador t : dao.obtenerTrabajadoresDisponibles()) {
+            cmbTrabajador.addItem(t);
+        }
+
+        // Cargar Roles de la BD
+        cmbRol.removeAllItems();
+        for (modelo.Rol r : dao.obtenerRoles()) {
+            cmbRol.addItem(r);
+        }
     }
 
     /**
@@ -33,17 +55,17 @@ public class proles extends javax.swing.JPanel {
         jTable1 = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        cmbTrabajador = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        txtUsuario = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox<>();
+        cmbRol = new javax.swing.JComboBox<>();
         btncerrar = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btnguardar = new javax.swing.JButton();
+        txtClave = new javax.swing.JPasswordField();
         jPanel1 = new javax.swing.JPanel();
 
         padmusuarios.setBackground(new java.awt.Color(255, 255, 255));
@@ -89,7 +111,7 @@ public class proles extends javax.swing.JPanel {
 
         jLabel2.setText("TRABAJADOR");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbTrabajador.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         jLabel3.setText("ID");
 
@@ -101,12 +123,15 @@ public class proles extends javax.swing.JPanel {
 
         jLabel6.setText("ROL");
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbRol.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         btncerrar.setText("CERRAR");
         btncerrar.addActionListener(this::btncerrarActionPerformed);
 
-        jButton2.setText("GUARDAR");
+        btnguardar.setText("GUARDAR");
+        btnguardar.addActionListener(this::btnguardarActionPerformed);
+
+        txtClave.setText("jPasswordField1");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -122,15 +147,16 @@ public class proles extends javax.swing.JPanel {
                     .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 362, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cmbTrabajador, javax.swing.GroupLayout.PREFERRED_SIZE, 362, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cmbRol, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(txtClave, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(txtUsuario, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE)))
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton2)
+                .addComponent(btnguardar)
                 .addGap(83, 83, 83)
                 .addComponent(btncerrar)
                 .addGap(149, 149, 149))
@@ -141,7 +167,7 @@ public class proles extends javax.swing.JPanel {
                 .addGap(25, 25, 25)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cmbTrabajador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(21, 21, 21)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
@@ -149,19 +175,19 @@ public class proles extends javax.swing.JPanel {
                 .addGap(19, 19, 19)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(25, 25, 25)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtClave, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cmbRol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 67, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btncerrar)
-                    .addComponent(jButton2))
+                    .addComponent(btnguardar))
                 .addGap(42, 42, 42))
         );
 
@@ -237,12 +263,47 @@ public class proles extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btncerrarActionPerformed
 
+    private void btnguardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnguardarActionPerformed
+        if (cmbTrabajador.getSelectedItem() == null || cmbRol.getSelectedItem() == null) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Debe seleccionar un trabajador y un rol.");
+            return;
+        }
+
+        String usuario = txtUsuario.getText().trim();
+        String clave = new String(txtClave.getPassword()).trim(); // Si usas JPasswordField
+
+        if (usuario.isEmpty() || clave.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Por favor, complete el usuario y la contraseña.");
+            return;
+        }
+
+        // 2. Extraer objetos directamente mapeados desde los combos
+        modelo.Trabajador trabSeleccionado = (modelo.Trabajador) cmbTrabajador.getSelectedItem();
+        modelo.Rol rolSeleccionado = (modelo.Rol) cmbRol.getSelectedItem();
+
+        int idTrabajador = trabSeleccionado.getIdTrabajador();
+        int idRol = rolSeleccionado.getIdRol();
+
+        // 3. Procesar inserción mediante el DAO
+        UsuarioDAO dao = new UsuarioDAO();
+        boolean exito = dao.registrarUsuario(idTrabajador, usuario, clave, idRol);
+
+        if (exito) {
+            javax.swing.JOptionPane.showMessageDialog(this, "¡Usuario asignado correctamente al trabajador!");
+            txtUsuario.setText("");
+            txtClave.setText("");
+            cargarCombos(); // Recarga los combos (el trabajador registrado ya no aparecerá disponible)
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error: El nombre de usuario ya existe en el sistema.");
+        }
+    }//GEN-LAST:event_btnguardarActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btncerrar;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
+    private javax.swing.JButton btnguardar;
+    private javax.swing.JComboBox<Object> cmbRol;
+    private javax.swing.JComboBox<Object> cmbTrabajador;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -255,8 +316,8 @@ public class proles extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
     private javax.swing.JPanel padmusuarios;
+    private javax.swing.JPasswordField txtClave;
+    private javax.swing.JTextField txtUsuario;
     // End of variables declaration//GEN-END:variables
 }
