@@ -21,6 +21,8 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
      * Creates new form INICIO_ADMIN
      */
     
+    palmacen palmacen = new palmacen();
+    pVentasFac pventas = new pVentasFac();
     pcierre panelcierre = new pcierre();
     papertura panelapertura = new papertura();
     pmercaderia panelmercaderia = new pmercaderia();
@@ -97,6 +99,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         calmacen.setText("ALMACEN");
 
         ming_almacen.setText("INGRESO ALMACEN");
+        ming_almacen.addActionListener(this::ming_almacenActionPerformed);
         calmacen.add(ming_almacen);
 
         jMenuBar1.add(calmacen);
@@ -104,6 +107,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         cventas.setText("VENTAS");
 
         mreg_venta.setText("REGISTRAR VENTA");
+        mreg_venta.addActionListener(this::mreg_ventaActionPerformed);
         cventas.add(mreg_venta);
 
         jMenuBar1.add(cventas);
@@ -174,6 +178,20 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         SwingUtilities.updateComponentTreeUI(this);
         this.repaint();
     }//GEN-LAST:event_mc_cierreActionPerformed
+
+    private void ming_almacenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ming_almacenActionPerformed
+        pinicioadmin.add(palmacen, "ingreso mercaderia");
+        vista.show(pinicioadmin, "ingreso mercaderia");
+        SwingUtilities.updateComponentTreeUI(this);
+        this.repaint();
+    }//GEN-LAST:event_ming_almacenActionPerformed
+
+    private void mreg_ventaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mreg_ventaActionPerformed
+        pinicioadmin.add(pventas, "registrar venta");
+        vista.show(pinicioadmin, "registrar venta");
+        SwingUtilities.updateComponentTreeUI(this);
+        this.repaint();
+    }//GEN-LAST:event_mreg_ventaActionPerformed
 
     /**
      * @param args the command line arguments

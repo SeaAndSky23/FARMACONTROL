@@ -25,9 +25,10 @@ public class ConexioDB {
 
     public static Connection getConexion() {
         try {
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            //Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             return DriverManager.getConnection(URL, USER, PASSWORD);
-        } catch (ClassNotFoundException | SQLException e) {
+        //} catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             // Esto imprimirá de forma detallada qué está bloqueando el login
             System.err.println("🚨 ERROR CRÍTICO EN LA CONEXIÓN DE BASE DE DATOS:");
             e.printStackTrace();
