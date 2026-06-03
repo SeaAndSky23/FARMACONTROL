@@ -21,11 +21,11 @@ import java.sql.Statement;
 public class UsuarioDAO {
 
     public String login(String usuario, String contrasena) {
-        // Usamos CONVERT(VARCHAR(50), ?) para asegurar que SQL Server procese la misma codificación de caracteres
+        
         String sql = "SELECT R.Nombre_rol FROM USUARIOS U "
                 + "INNER JOIN ROLES R ON U.Id_rol = R.Id_rol "
                 + "WHERE LTRIM(RTRIM(U.Nombre_usuario)) = LTRIM(RTRIM(?)) "
-                + "AND U.Contrasena = HASHBYTES('SHA2_512', CONVERT(VARCHAR(50), LTRIM(RTRIM(?)))) "
+                + "AND LTRIM(RTRIM(U.Contrasena)) = LTRIM(RTRIM(?)) "
                 + "AND U.Estado = 1";
 
         Connection con = ConexioDB.getConexion();
@@ -60,7 +60,7 @@ public class UsuarioDAO {
     // 2. Registrar un nuevo usuario asociado a un trabajador
     public boolean registrarUsuario(int idTrabajador, String nombreUsuario, String contrasena, int idRol) {
         String sql = "INSERT INTO USUARIOS (Id_trabajador, Nombre_usuario, Contrasena, Id_rol, Estado) "
-                + "VALUES (?, ?, HASHBYTES('SHA2_512', ?), ?, 1)";
+                + "VALUES (?, ?, ?, ?, 1)";
 
         try (Connection con = ConexioDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
 
