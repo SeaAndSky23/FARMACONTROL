@@ -39,7 +39,6 @@ public class proles extends javax.swing.JPanel {
             cmbRol.addItem(r);
         }
     }
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -190,15 +189,8 @@ public class proles extends javax.swing.JPanel {
                         .addComponent(plisusuarios, javax.swing.GroupLayout.PREFERRED_SIZE, 492, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-<<<<<<< HEAD
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
-=======
-                    .addGroup(padmusuariosLayout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addComponent(jLabel1)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
->>>>>>> mari
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -295,12 +287,9 @@ public class proles extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
-<<<<<<< HEAD
     private javax.swing.JTextField jTextField1;
-=======
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
->>>>>>> mari
     private javax.swing.JPanel padmusuarios;
     private javax.swing.JScrollPane plisusuarios;
     private javax.swing.JTable tusuarios;
