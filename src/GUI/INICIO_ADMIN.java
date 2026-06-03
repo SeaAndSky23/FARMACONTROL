@@ -147,7 +147,8 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     }//GEN-LAST:event_mtrabajadoresActionPerformed
 
     private void musuariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_musuariosActionPerformed
-         pinicioadmin.add(panelusuarios, "adm USUARIOS");
+         panelusuarios.cargarCombos();
+        pinicioadmin.add(panelusuarios, "adm USUARIOS");
         vista.show(pinicioadmin, "adm USUARIOS");
         SwingUtilities.updateComponentTreeUI(this);
         this.repaint();
