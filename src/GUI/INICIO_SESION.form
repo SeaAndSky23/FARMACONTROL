@@ -196,9 +196,6 @@
               </Events>
             </Component>
             <Component class="javax.swing.JPasswordField" name="txtclave">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="jPasswordField1"/>
-              </Properties>
             </Component>
           </SubComponents>
         </Container>
