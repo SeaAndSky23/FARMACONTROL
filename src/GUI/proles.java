@@ -9,6 +9,7 @@ import modelo.Trabajador;
 import modelo.Rol;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
 
 /**
  *
@@ -22,6 +23,7 @@ public class proles extends javax.swing.JPanel {
     public proles() {
         initComponents();
         cargarCombos();
+        cargarTabla();
     }
 
     public void cargarCombos() {
@@ -37,6 +39,37 @@ public class proles extends javax.swing.JPanel {
         cmbRol.removeAllItems();
         for (modelo.Rol r : dao.obtenerRoles()) {
             cmbRol.addItem(r);
+        }
+    }
+
+    //listar usuarios en tabla
+    public void cargarTabla() {
+        String[] columnas = {"ID", "Trabajador", "Nombre Usuario", "Rol", "Estado"};
+
+        // Creamos el modelo
+        DefaultTableModel modeloTabla = new DefaultTableModel(null, columnas) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        UsuarioDAO dao = new UsuarioDAO();
+        ArrayList<Object[]> datos = dao.listarUsuariosParaTabla();
+
+        for (Object[] fila : datos) {
+            modeloTabla.addRow(fila);
+        }
+
+        // Ahora tblUsuarios ya será un JTable y reconocerá el método setModel
+        tblUsuarios.setModel(modeloTabla);
+        if (tblUsuarios.getColumnCount() > 0) {
+            tblUsuarios.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tblUsuarios.getColumnModel().getColumn(0).setMaxWidth(80);
+            tblUsuarios.getColumnModel().getColumn(1).setPreferredWidth(250);
+            tblUsuarios.getColumnModel().getColumn(2).setPreferredWidth(120);
+            tblUsuarios.getColumnModel().getColumn(3).setPreferredWidth(100);
+            tblUsuarios.getColumnModel().getColumn(4).setPreferredWidth(80);
         }
     }
 
@@ -62,9 +95,12 @@ public class proles extends javax.swing.JPanel {
         btncerrar = new javax.swing.JButton();
         btnguardar = new javax.swing.JButton();
         txtClave = new javax.swing.JPasswordField();
+        btneliminar = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        plisusuarios = new javax.swing.JScrollPane();
-        tusuarios = new javax.swing.JTable();
+        tblusuarios = new javax.swing.JScrollPane();
+        tblUsuarios = new javax.swing.JTable();
+
+        setBackground(new java.awt.Color(255, 255, 255));
 
         padmusuarios.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -92,6 +128,9 @@ public class proles extends javax.swing.JPanel {
         btnguardar.setText("GUARDAR");
         btnguardar.addActionListener(this::btnguardarActionPerformed);
 
+        btneliminar.setText("ELIMINAR");
+        btneliminar.addActionListener(this::btneliminarActionPerformed);
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -102,8 +141,9 @@ public class proles extends javax.swing.JPanel {
                     .addComponent(jLabel2)
                     .addComponent(jLabel5)
                     .addComponent(jLabel6)
-                    .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
+                    .addComponent(jLabel4)
+                    .addComponent(btneliminar))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -144,7 +184,8 @@ public class proles extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnguardar)
-                    .addComponent(btncerrar))
+                    .addComponent(btncerrar)
+                    .addComponent(btneliminar))
                 .addGap(47, 47, 47))
         );
 
@@ -154,18 +195,18 @@ public class proles extends javax.swing.JPanel {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 45, Short.MAX_VALUE)
+            .addGap(0, 22, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
         );
 
-        plisusuarios.setBackground(new java.awt.Color(255, 255, 255));
-        plisusuarios.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "LISTA DE USUARIOS", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Arial", 1, 14))); // NOI18N
-        plisusuarios.setForeground(new java.awt.Color(255, 255, 255));
+        tblusuarios.setBackground(new java.awt.Color(255, 255, 255));
+        tblusuarios.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "LISTA DE USUARIOS", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Arial", 1, 14))); // NOI18N
+        tblusuarios.setForeground(new java.awt.Color(255, 255, 255));
 
-        tusuarios.setModel(new javax.swing.table.DefaultTableModel(
+        tblUsuarios.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -176,7 +217,7 @@ public class proles extends javax.swing.JPanel {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        plisusuarios.setViewportView(tusuarios);
+        tblusuarios.setViewportView(tblUsuarios);
 
         javax.swing.GroupLayout padmusuariosLayout = new javax.swing.GroupLayout(padmusuarios);
         padmusuarios.setLayout(padmusuariosLayout);
@@ -186,11 +227,11 @@ public class proles extends javax.swing.JPanel {
                 .addGap(21, 21, 21)
                 .addGroup(padmusuariosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(padmusuariosLayout.createSequentialGroup()
-                        .addComponent(plisusuarios, javax.swing.GroupLayout.PREFERRED_SIZE, 492, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addComponent(tblusuarios, javax.swing.GroupLayout.PREFERRED_SIZE, 505, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
+                .addGap(12, 12, 12)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -202,15 +243,11 @@ public class proles extends javax.swing.JPanel {
                     .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(padmusuariosLayout.createSequentialGroup()
                         .addComponent(jLabel1)
+                        .addGap(22, 22, 22)
                         .addGroup(padmusuariosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(padmusuariosLayout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(padmusuariosLayout.createSequentialGroup()
-                                .addGap(22, 22, 22)
-                                .addComponent(plisusuarios, javax.swing.GroupLayout.PREFERRED_SIZE, 516, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 36, Short.MAX_VALUE)))))
+                            .addComponent(tblusuarios, javax.swing.GroupLayout.PREFERRED_SIZE, 516, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 36, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -268,15 +305,54 @@ public class proles extends javax.swing.JPanel {
             javax.swing.JOptionPane.showMessageDialog(this, "¡Usuario asignado correctamente al trabajador!");
             txtUsuario.setText("");
             txtClave.setText("");
-            cargarCombos(); // Recarga los combos (el trabajador registrado ya no aparecerá disponible)
+            cargarCombos();
+            cargarTabla();
         } else {
             javax.swing.JOptionPane.showMessageDialog(this, "Error: El nombre de usuario ya existe en el sistema.");
         }
     }//GEN-LAST:event_btnguardarActionPerformed
 
+    private void btneliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btneliminarActionPerformed
+        // 1. Verificar si el usuario ha seleccionado una fila de la tabla
+        int filaSeleccionada = tblUsuarios.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Por favor, seleccione el usuario que desea eliminar de la tabla.");
+            return;
+        }
+        // 2. Obtener el ID del usuario desde la columna 0 de la fila seleccionada
+        // Se usa 'tblUsuarios.getValueAt' que extrae el valor directamente del JTable
+        int idUsuario = Integer.parseInt(tblUsuarios.getValueAt(filaSeleccionada, 0).toString());
+        String nombreUsuario = tblUsuarios.getValueAt(filaSeleccionada, 2).toString();
+
+        // 3. Confirmar la acción con el usuario mediante un cuadro de diálogo
+        int confirmar = javax.swing.JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro de que desea eliminar al usuario '" + nombreUsuario + "'?",
+                "Confirmar Eliminación",
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.WARNING_MESSAGE
+        );
+        // 4. Si el usuario selecciona "SÍ", procedemos a borrarlo
+        if (confirmar == javax.swing.JOptionPane.YES_OPTION) {
+            UsuarioDAO dao = new UsuarioDAO();
+            boolean exito = dao.eliminarUsuario(idUsuario);
+            if (exito) {
+                javax.swing.JOptionPane.showMessageDialog(this, "¡Usuario eliminado con éxito!");
+
+                // 5. Refrescar los componentes visuales
+                cargarTabla();   // Para que ya no aparezca en la lista
+                cargarCombos();  // Para que el trabajador quede disponible nuevamente en el ComboBox
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this, "Error: No se pudo eliminar el usuario de la base de datos.");
+            }
+        }
+    }//GEN-LAST:event_btneliminarActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btncerrar;
+    private javax.swing.JButton btneliminar;
     private javax.swing.JButton btnguardar;
     private javax.swing.JComboBox<Object> cmbRol;
     private javax.swing.JComboBox<Object> cmbTrabajador;
@@ -287,12 +363,9 @@ public class proles extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JPanel padmusuarios;
-    private javax.swing.JScrollPane plisusuarios;
-    private javax.swing.JTable tusuarios;
+    private javax.swing.JTable tblUsuarios;
+    private javax.swing.JScrollPane tblusuarios;
     private javax.swing.JPasswordField txtClave;
     private javax.swing.JTextField txtUsuario;
     // End of variables declaration//GEN-END:variables

@@ -126,4 +126,53 @@ public class UsuarioDAO {
         }
         return lista;
     }
+    
+    //mostrar usuarios en tabla
+    public ArrayList<Object[]> listarUsuariosParaTabla() {
+        ArrayList<Object[]> lista = new ArrayList<>();
+        String sql = "SELECT u.Id_usuario, "
+                   + "(t.NOMBRES + ' ' + t.AP_PATERNO + ' ' + t.AP_MATERNO) AS Trabajador, "
+                   + "u.Nombre_usuario, r.Nombre_rol, "
+                   + "CASE WHEN u.Estado = 1 THEN 'Activo' ELSE 'Inactivo' END AS Estado "
+                   + "FROM USUARIOS u "
+                   + "INNER JOIN TRABAJADORES t ON u.Id_trabajador = t.Id_trabajador "
+                   + "INNER JOIN ROLES r ON u.Id_rol = r.Id_rol "
+                   + "ORDER BY u.Id_usuario DESC"; // Los últimos creados aparecen primero
+
+        try (Connection con = ConexioDB.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Object[] fila = new Object[5];
+                fila[0] = rs.getInt("Id_usuario");
+                fila[1] = rs.getString("Trabajador");
+                fila[2] = rs.getString("Nombre_usuario");
+                fila[3] = rs.getString("Nombre_rol");
+                fila[4] = rs.getString("Estado");
+                
+                lista.add(fila);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error en listarUsuariosParaTabla: " + e.getMessage());
+        }
+        return lista;
+    }
+    
+    // Eliminar un usuario por su ID
+    public boolean eliminarUsuario(int idUsuario) {
+        String sql = "DELETE FROM USUARIOS WHERE Id_usuario = ?";
+
+        try (Connection con = ConexioDB.getConexion(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idUsuario);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.out.println("Error al eliminar usuario: " + e.getMessage());
+            return false;
+        }
+    }
 }
