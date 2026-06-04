@@ -47,9 +47,14 @@ public class pmercaderia extends javax.swing.JPanel {
         // Por defecto, colocamos solo una fila de "Unidad" que es lo mínimo que tiene cualquier producto
         modeloTabla.addRow(new Object[]{"Unidad", "1", "18%", "0.00"});
     }
-
+    
+@SuppressWarnings("unchecked")
     public void llenarCombo(JComboBox combo, String tabla, String campoId, String campoNombre) {
         combo.removeAllItems(); // Limpiamos elementos previos
+
+        // 1. Agregamos una opción vacía al inicio
+        combo.addItem(new ObjetoCombo(0, ""));
+        // Si prefieres que diga un texto, puedes usar: combo.addItem(new ObjetoCombo(0, "-- Seleccione --"));
 
         String sql = "SELECT " + campoId + ", " + campoNombre + " FROM " + tabla + " ORDER BY " + campoNombre + " ASC";
 
@@ -59,9 +64,12 @@ public class pmercaderia extends javax.swing.JPanel {
                 int id = rs.getInt(campoId);
                 String nombre = rs.getString(campoNombre);
 
-                // Agregamos la instancia del objeto al ComboBox
+                // Agregamos las instancias reales de la base de datos
                 combo.addItem(new ObjetoCombo(id, nombre));
             }
+
+            // 2. Forzamos a que el combo apunte al índice 0 (la opción vacía) apenas cargue
+            combo.setSelectedIndex(0);
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error al llenar combo " + tabla + ": " + e.getMessage());
@@ -394,10 +402,13 @@ public class pmercaderia extends javax.swing.JPanel {
 
     private void btnguardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnguardarActionPerformed
         // 1. Validar que los ComboBox tengan una selección válida
-        if (cbMarca.getSelectedItem() == null || cbPactivo.getSelectedItem() == null
-                || cbConcentracion.getSelectedItem() == null || cbFfarma.getSelectedItem() == null
-                || cbCondventa.getSelectedItem() == null) {
-            JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos de selección.");
+        if (cbMarca.getSelectedItem() == null || ((ObjetoCombo) cbMarca.getSelectedItem()).getId() == 0
+                || cbPactivo.getSelectedItem() == null || ((ObjetoCombo) cbPactivo.getSelectedItem()).getId() == 0
+                || cbConcentracion.getSelectedItem() == null || ((ObjetoCombo) cbConcentracion.getSelectedItem()).getId() == 0
+                || cbFfarma.getSelectedItem() == null || ((ObjetoCombo) cbFfarma.getSelectedItem()).getId() == 0
+                || cbCondventa.getSelectedItem() == null || ((ObjetoCombo) cbCondventa.getSelectedItem()).getId() == 0) {
+
+            JOptionPane.showMessageDialog(this, "Por favor, seleccione una opción válida en todos los campos desplegables.");
             return;
         }
 
@@ -517,6 +528,8 @@ public class pmercaderia extends javax.swing.JPanel {
     private void limpiarFormulario() {
         txtDescripcion.setText("");
         txtCodigoBarras.setText("");
+
+        // Al poner el índice en 0, regresarán a mostrar el campo vacío automáticamente
         if (cbMarca.getItemCount() > 0) {
             cbMarca.setSelectedIndex(0);
         }
