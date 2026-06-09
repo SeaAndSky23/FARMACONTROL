@@ -55,6 +55,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     private void initComponents() {
 
         pinicioadmin = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         cusuarios = new javax.swing.JMenu();
         mtrabajadores = new javax.swing.JMenuItem();
@@ -75,6 +76,9 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
 
         pinicioadmin.setBackground(new java.awt.Color(255, 255, 255));
         pinicioadmin.setLayout(new java.awt.CardLayout());
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/8072883 (1).png"))); // NOI18N
+        pinicioadmin.add(jLabel1, "card2");
 
         cusuarios.setText("SEGURIDAD");
 
@@ -225,6 +229,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     private javax.swing.JMenu creportes;
     private javax.swing.JMenu cusuarios;
     private javax.swing.JMenu cventas;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem mc_apertura;
     private javax.swing.JMenuItem mc_cierre;

@@ -10,6 +10,10 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import modelo.ObjetoCombo;
 import conexion.ConexioDB;
+import javax.swing.DefaultCellEditor;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableColumn;
 
 /**
  *
@@ -38,12 +42,74 @@ public class pmercaderia extends javax.swing.JPanel {
         modeloTabla = new DefaultTableModel(null, titulos) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return true; // Permitimos editar todas las celdas para que pongan la medida que quieran
+                // Columna 1 (Múltiplo) no debería ser editable manualmente si se automatiza
+                if (column == 1) {
+                    return false; 
+                }
+                return true; 
             }
         };
 
         tprod_presentacion.setModel(modeloTabla);
+        
+        // 1. Creamos el JComboBox y le agregamos las opciones que necesitas
+        JComboBox<String> comboMedida = new JComboBox<>();
+        comboMedida.addItem("Unidad");
+        comboMedida.addItem("Blister x 5");
+        comboMedida.addItem("Blister x 10");
+        comboMedida.addItem("Caja x 10");
+        comboMedida.addItem("Caja x 20");
+        comboMedida.addItem("Caja x 30");
+        comboMedida.addItem("Caja x 50");
+        comboMedida.addItem("Caja x 100");
+        
+        // 2. Asignamos el ComboBox como editor de la columna 0 ("MEDIDA")
+        TableColumn colMedida = tprod_presentacion.getColumnModel().getColumn(0);
+        colMedida.setCellEditor(new DefaultCellEditor(comboMedida));
+        
+        // 3. Listener para detectar cuándo cambia la medida y actualizar el múltiplo
+        modeloTabla.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                // Validamos que el evento sea una actualización de celda
+                if (e.getType() == TableModelEvent.UPDATE) {
+                    int row = e.getFirstRow();
+                    int column = e.getColumn();
 
+                    // Si el cambio ocurrió en la columna 0 ("MEDIDA")
+                    if (column == 0) {
+                        Object valorMedida = modeloTabla.getValueAt(row, column);
+                        int multiplo = 1;
+
+                        if (valorMedida != null) {
+                            String medida = valorMedida.toString();
+
+                            // Evaluamos qué múltiplo corresponde a la medida seleccionada
+                            switch (medida) {
+                                case "Unidad":      multiplo = 1; break;
+                                case "Blister x 5":  multiplo = 5; break;
+                                case "Blister x 10":  multiplo = 10; break;
+                                case "Caja x 10":   multiplo = 10; break;
+                                case "Caja x 20":   multiplo = 20; break;
+                                case "Caja x 30":   multiplo = 30; break;
+                                case "Caja x 50":   multiplo = 50; break;
+                                case "Caja x 100":  multiplo = 100; break;
+                                default:            multiplo = 1; break;
+                            }
+                        }
+
+                        // Usamos invokeLater para evitar conflictos de hilos mientras la tabla se dibuja
+                        final int m = multiplo;
+                        final int r = row;
+                        java.awt.EventQueue.invokeLater(() -> {
+                            // Actualiza la columna 1 ("MÚLTIPLO") con el número correspondiente
+                            modeloTabla.setValueAt(String.valueOf(m), r, 1);
+                        });
+                    }
+                }
+            }
+        });
+        
         // Por defecto, colocamos solo una fila de "Unidad" que es lo mínimo que tiene cualquier producto
         modeloTabla.addRow(new Object[]{"Unidad", "1", "18%", "0.00"});
     }
@@ -54,7 +120,6 @@ public class pmercaderia extends javax.swing.JPanel {
 
         // 1. Agregamos una opción vacía al inicio
         combo.addItem(new ObjetoCombo(0, ""));
-        // Si prefieres que diga un texto, puedes usar: combo.addItem(new ObjetoCombo(0, "-- Seleccione --"));
 
         String sql = "SELECT " + campoId + ", " + campoNombre + " FROM " + tabla + " ORDER BY " + campoNombre + " ASC";
 
@@ -240,59 +305,57 @@ public class pmercaderia extends javax.swing.JPanel {
                                 .addComponent(txtDescripcion, javax.swing.GroupLayout.PREFERRED_SIZE, 497, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(152, 152, 152)
-                                .addComponent(txtCodigoBarras, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel5))
+                                .addGap(50, 50, 50)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel4)
-                                            .addComponent(jLabel5))
-                                        .addGap(50, 50, 50)
-                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                                .addComponent(cbConcentracion, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(btnconcentracion))
-                                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                                .addGap(1, 1, 1)
-                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                                        .addComponent(cbPactivo, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                        .addComponent(btnpactivo))
-                                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                                        .addComponent(cbMarca, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                        .addComponent(btnagmarca))))))
-                                    .addComponent(jLabel3)
+                                        .addComponent(cbConcentracion, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(btnconcentracion))
                                     .addGroup(jPanel2Layout.createSequentialGroup()
                                         .addGap(1, 1, 1)
                                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel9)
                                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                    .addComponent(jLabel7)
-                                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                                        .addComponent(jLabel6)
-                                                        .addGap(18, 18, 18)
-                                                        .addComponent(cbFfarma, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                                        .addComponent(jLabel8)
-                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                        .addComponent(cbCondventa, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                .addComponent(cbPactivo, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addComponent(btnfarma)
-                                                    .addComponent(btncventa))))))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnguardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                                .addComponent(btnpactivo))
+                                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addComponent(cbMarca, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(btnagmarca))))))
+                            .addComponent(jLabel3)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(1, 1, 1)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(jLabel7)
+                                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addComponent(jLabel6)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(cbFfarma, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                                .addComponent(jLabel8)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(cbCondventa, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(btnfarma)
+                                            .addComponent(btncventa)))
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addComponent(jLabel9)
+                                        .addGap(104, 104, 104)
+                                        .addComponent(txtCodigoBarras, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 608, Short.MAX_VALUE)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnguardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(126, 126, 126))))
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(110, 110, 110)
@@ -352,7 +415,7 @@ public class pmercaderia extends javax.swing.JPanel {
                     .addComponent(cbCondventa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btncventa))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel9)
                     .addComponent(txtCodigoBarras, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -423,10 +486,6 @@ public class pmercaderia extends javax.swing.JPanel {
         String descripcion = txtDescripcion.getText().trim();
         String codigoBarras = txtCodigoBarras.getText().trim();
 
-        // Para la fecha, si usas JDateChooser de JCalendar:
-        // java.util.Date fechaSelect = jdFechaVencimiento.getDate();
-        // java.sql.Date fechaVencimiento = new java.sql.Date(fechaSelect.getTime());
-        // Por ahora usaré una fecha fija actual de prueba si no tienes el componente listo:
         java.sql.Date fechaVencimiento = new java.sql.Date(System.currentTimeMillis());
 
         if (descripcion.isEmpty() || codigoBarras.isEmpty()) {
