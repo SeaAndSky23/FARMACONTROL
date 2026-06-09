@@ -21,6 +21,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
      * Creates new form INICIO_ADMIN
      */
     
+    pkardexinv pkardexinv = new pkardexinv();
     palmacen palmacen = new palmacen();
     pVentasFac pventas = new pVentasFac();
     pcierre panelcierre = new pcierre();
@@ -64,6 +65,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         ming_producto = new javax.swing.JMenuItem();
         calmacen = new javax.swing.JMenu();
         ming_almacen = new javax.swing.JMenuItem();
+        mkardex = new javax.swing.JMenuItem();
         cventas = new javax.swing.JMenu();
         mreg_venta = new javax.swing.JMenuItem();
         ccaja = new javax.swing.JMenu();
@@ -105,6 +107,10 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         ming_almacen.setText("INGRESO ALMACEN");
         ming_almacen.addActionListener(this::ming_almacenActionPerformed);
         calmacen.add(ming_almacen);
+
+        mkardex.setText("KARDEX");
+        mkardex.addActionListener(this::mkardexActionPerformed);
+        calmacen.add(mkardex);
 
         jMenuBar1.add(calmacen);
 
@@ -197,6 +203,13 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         this.repaint();
     }//GEN-LAST:event_mreg_ventaActionPerformed
 
+    private void mkardexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mkardexActionPerformed
+        pinicioadmin.add(pkardexinv, "historial inventario");
+        vista.show(pinicioadmin, "historial inventario");
+        SwingUtilities.updateComponentTreeUI(this);
+        this.repaint();
+    }//GEN-LAST:event_mkardexActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -235,6 +248,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     private javax.swing.JMenuItem mc_cierre;
     private javax.swing.JMenuItem ming_almacen;
     private javax.swing.JMenuItem ming_producto;
+    private javax.swing.JMenuItem mkardex;
     private javax.swing.JMenuItem mreg_venta;
     private javax.swing.JMenuItem mtrabajadores;
     private javax.swing.JMenuItem musuarios;
