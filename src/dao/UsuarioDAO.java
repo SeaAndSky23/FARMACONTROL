@@ -21,8 +21,9 @@ import java.sql.Statement;
 public class UsuarioDAO {
 
     public String login(String usuario, String contrasena) {
-        
-        String sql = "SELECT R.Nombre_rol FROM USUARIOS U "
+
+        // 1. Añadimos U.Id_usuario y U.Nombre_usuario al SELECT
+        String sql = "SELECT U.Id_usuario, U.Nombre_usuario, R.Nombre_rol FROM USUARIOS U "
                 + "INNER JOIN ROLES R ON U.Id_rol = R.Id_rol "
                 + "WHERE LTRIM(RTRIM(U.Nombre_usuario)) = LTRIM(RTRIM(?)) "
                 + "AND LTRIM(RTRIM(U.Contrasena)) = LTRIM(RTRIM(?)) "
@@ -40,7 +41,13 @@ public class UsuarioDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getString("Nombre_rol"); // Login Exitoso
+                    // 2. CAPTURAMOS LOS DATOS Y LOS GUARDAMOS EN LA SESIÓN GLOBAL
+                    modelo.Sesion.setIdUsuario(rs.getInt("Id_usuario"));
+                    modelo.Sesion.setNombreUsuario(rs.getString("Nombre_usuario"));
+                    modelo.Sesion.setNombreRol(rs.getString("Nombre_rol"));
+
+                    // Seguimos retornando el String con el Rol para no romper tu Login de la GUI
+                    return rs.getString("Nombre_rol");
                 }
             }
         } catch (SQLException e) {
@@ -54,7 +61,7 @@ public class UsuarioDAO {
                 System.out.println("Error al cerrar conexión: " + ex.getMessage());
             }
         }
-        return null; // Credenciales incorrectas o error
+        return null;
     }
 
     // 2. Registrar un nuevo usuario asociado a un trabajador
@@ -80,15 +87,13 @@ public class UsuarioDAO {
     // 3. Obtener trabajadores que NO tienen una cuenta de usuario asignada aún
     public ArrayList<Trabajador> obtenerTrabajadoresDisponibles() {
         ArrayList<Trabajador> lista = new ArrayList<>();
-        String sql = "SELECT t.id_trabajador, t.NOMBRES, t.AP_PATERNO, t.AP_MATERNO " +
-                     "FROM TRABAJADORES t " +
-                     "LEFT JOIN USUARIOS u ON t.id_trabajador = u.id_trabajador " +
-                     "WHERE u.id_trabajador IS NULL " +
-                     "ORDER BY t.AP_PATERNO, t.NOMBRES";
+        String sql = "SELECT t.id_trabajador, t.NOMBRES, t.AP_PATERNO, t.AP_MATERNO "
+                + "FROM TRABAJADORES t "
+                + "LEFT JOIN USUARIOS u ON t.id_trabajador = u.id_trabajador "
+                + "WHERE u.id_trabajador IS NULL "
+                + "ORDER BY t.AP_PATERNO, t.NOMBRES";
 
-        try (Connection con = ConexioDB.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection con = ConexioDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Trabajador t = new Trabajador();
@@ -97,17 +102,17 @@ public class UsuarioDAO {
                 t.setNombres(rs.getString("NOMBRES"));
                 t.setApPaterno(rs.getString("AP_PATERNO"));
                 t.setApMaterno(rs.getString("AP_MATERNO"));
-                
+
                 lista.add(t);
             }
-            
+
             // Línea de depuración para tu consola de NetBeans
             System.out.println("DEBUG: Trabajadores disponibles cargados: " + lista.size());
 
         } catch (SQLException e) {
             System.out.println("Error en obtenerTrabajadoresDisponibles: " + e.getMessage());
         }
-        
+
         return lista;
     }
 
@@ -126,22 +131,20 @@ public class UsuarioDAO {
         }
         return lista;
     }
-    
+
     //mostrar usuarios en tabla
     public ArrayList<Object[]> listarUsuariosParaTabla() {
         ArrayList<Object[]> lista = new ArrayList<>();
         String sql = "SELECT u.Id_usuario, "
-                   + "(t.NOMBRES + ' ' + t.AP_PATERNO + ' ' + t.AP_MATERNO) AS Trabajador, "
-                   + "u.Nombre_usuario, r.Nombre_rol, "
-                   + "CASE WHEN u.Estado = 1 THEN 'Activo' ELSE 'Inactivo' END AS Estado "
-                   + "FROM USUARIOS u "
-                   + "INNER JOIN TRABAJADORES t ON u.Id_trabajador = t.Id_trabajador "
-                   + "INNER JOIN ROLES r ON u.Id_rol = r.Id_rol "
-                   + "ORDER BY u.Id_usuario DESC"; // Los últimos creados aparecen primero
+                + "(t.NOMBRES + ' ' + t.AP_PATERNO + ' ' + t.AP_MATERNO) AS Trabajador, "
+                + "u.Nombre_usuario, r.Nombre_rol, "
+                + "CASE WHEN u.Estado = 1 THEN 'Activo' ELSE 'Inactivo' END AS Estado "
+                + "FROM USUARIOS u "
+                + "INNER JOIN TRABAJADORES t ON u.Id_trabajador = t.Id_trabajador "
+                + "INNER JOIN ROLES r ON u.Id_rol = r.Id_rol "
+                + "ORDER BY u.Id_usuario DESC"; // Los últimos creados aparecen primero
 
-        try (Connection con = ConexioDB.getConexion();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection con = ConexioDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Object[] fila = new Object[5];
@@ -150,7 +153,7 @@ public class UsuarioDAO {
                 fila[2] = rs.getString("Nombre_usuario");
                 fila[3] = rs.getString("Nombre_rol");
                 fila[4] = rs.getString("Estado");
-                
+
                 lista.add(fila);
             }
         } catch (SQLException e) {
@@ -158,13 +161,12 @@ public class UsuarioDAO {
         }
         return lista;
     }
-    
+
     // Eliminar un usuario por su ID
     public boolean eliminarUsuario(int idUsuario) {
         String sql = "DELETE FROM USUARIOS WHERE Id_usuario = ?";
 
-        try (Connection con = ConexioDB.getConexion(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = ConexioDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idUsuario);
 
