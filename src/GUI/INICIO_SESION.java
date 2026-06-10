@@ -158,37 +158,40 @@ public class INICIO_SESION extends javax.swing.JFrame {
 
     private void btningresarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btningresarActionPerformed
         String user = txtusuario.getText().trim();
-    String pass = new String(txtclave.getPassword()).trim();
+        String pass = new String(txtclave.getPassword()).trim();
 
-    if (user.isEmpty() || pass.isEmpty()) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
-        return;
-    }
-
-    UsuarioDAO usuarioDao = new UsuarioDAO();
-    String rol = usuarioDao.login(user, pass);
-
-    if (rol != null) {
-        this.dispose(); // Cierra el Login de forma segura
-        
-        // Compara ignorando mayúsculas/minúsculas según tus roles insertados
-        if (rol.equalsIgnoreCase("ADMIN") || rol.equalsIgnoreCase("ADMINISTRADOR")) {
-            INICIO_ADMIN adminForm = new INICIO_ADMIN();
-            adminForm.setVisible(true);
-            adminForm.setLocationRelativeTo(null);
-        } else {
-            // Aquí abres el panel o formulario para otros roles (Ej. Asistente, Vendedor)
-            FARMACEUTICO empleadoForm = new FARMACEUTICO();
-            empleadoForm.setVisible(true);
-            empleadoForm.setLocationRelativeTo(null);
+        if (user.isEmpty() || pass.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
+            return;
         }
-    } else {
-        javax.swing.JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos (o cuenta inactiva).");
-    }
+
+        UsuarioDAO usuarioDao = new UsuarioDAO();
+        String rol = usuarioDao.login(user, pass); // Retorna el rol desde la BD
+
+        if (rol != null) {
+            this.dispose(); 
+
+            // Evaluamos el rol del usuario
+            if (rol.equalsIgnoreCase("ADMIN") || rol.equalsIgnoreCase("ADMINISTRADOR")) {
+                INICIO_ADMIN adminForm = new INICIO_ADMIN();
+                adminForm.setVisible(true);
+                adminForm.setLocationRelativeTo(null);
+            } else if (rol.equalsIgnoreCase("FARMACEUTICO")) {
+                // Se abre el formulario exclusivo con Ventas y Caja
+                FARMACEUTICO empleadoForm = new FARMACEUTICO();
+                empleadoForm.setVisible(true);
+                empleadoForm.setLocationRelativeTo(null);
+            } else {
+                // Por si manejas algún otro rol por defecto
+                JOptionPane.showMessageDialog(this, "Rol no reconocido por el sistema.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos (o cuenta inactiva).");
+        }
     }//GEN-LAST:event_btningresarActionPerformed
 
     private void btnsalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnsalirActionPerformed
-        System.exit(0); 
+        System.exit(0);
     }//GEN-LAST:event_btnsalirActionPerformed
 
 

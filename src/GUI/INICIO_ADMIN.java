@@ -20,7 +20,6 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     /**
      * Creates new form INICIO_ADMIN
      */
-    
     pkardexinv pkardexinv = new pkardexinv();
     palmacen palmacen = new palmacen();
     pVentasFac pventas = new pVentasFac();
@@ -30,6 +29,9 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     proles panelusuarios = new proles();
     ptrabajadores paneltrabajadores = new ptrabajadores();
     CardLayout vista;
+
+    private int idUsuarioLogueado;
+    private String nombreUsuarioLogueado;
 
     public INICIO_ADMIN() {
         initComponents();
@@ -161,7 +163,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     }//GEN-LAST:event_mtrabajadoresActionPerformed
 
     private void musuariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_musuariosActionPerformed
-         panelusuarios.cargarCombos();
+        panelusuarios.cargarCombos();
         pinicioadmin.add(panelusuarios, "adm USUARIOS");
         vista.show(pinicioadmin, "adm USUARIOS");
         SwingUtilities.updateComponentTreeUI(this);

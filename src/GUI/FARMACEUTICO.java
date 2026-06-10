@@ -4,19 +4,42 @@
  */
 package GUI;
 
+import java.awt.CardLayout;
+import java.net.URL;
+import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
+
 /**
  *
- * @author Usuario
+ * @author USUARIO
  */
 public class FARMACEUTICO extends javax.swing.JFrame {
-    
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FARMACEUTICO.class.getName());
 
-    /**
-     * Creates new form FARMACEUTICO
-     */
+    private static final java.util.logging.Logger logger
+            = java.util.logging.Logger.getLogger(FARMACEUTICO.class.getName());
+
+    pVentasFac pventas = new pVentasFac();
+    pcierre panelcierre = new pcierre();
+    papertura panelapertura = new papertura();
+    CardLayout vista;
+
     public FARMACEUTICO() {
         initComponents();
+
+        this.setExtendedState(FARMACEUTICO.MAXIMIZED_BOTH);
+        java.awt.GraphicsEnvironment env
+                = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
+        this.setMaximizedBounds(env.getMaximumWindowBounds());
+
+        vista = (CardLayout) piniciofarma.getLayout();
+
+        icono_formulario();
+    }
+
+    public void icono_formulario() {
+        URL url = getClass().getResource("/imagenes/ICONO_SISTEMA.png");
+        ImageIcon icono_formulario = new ImageIcon(url);
+        setIconImage(icono_formulario.getImage());
     }
 
     /**
@@ -28,131 +51,119 @@ public class FARMACEUTICO extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        contenedorCentral = new javax.swing.JPanel();
-        lblLogo = new javax.swing.JLabel();
-        btnSalir = new javax.swing.JButton();
+        piniciofarma = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        aa = new javax.swing.JMenu();
+        mrventaf = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        maperturaf = new javax.swing.JMenuItem();
+        mcierref = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(971, 489));
+        setBackground(new java.awt.Color(255, 255, 255));
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        piniciofarma.setBackground(new java.awt.Color(255, 255, 255));
+        piniciofarma.setLayout(new java.awt.CardLayout());
 
-        jButton1.setText("VENTAS");
-        jButton1.addActionListener(this::jButton1ActionPerformed);
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/8072883 (1).png"))); // NOI18N
+        piniciofarma.add(jLabel1, "card2");
 
-        jButton2.setText("CAJA");
-        jButton2.addActionListener(this::jButton2ActionPerformed);
+        aa.setText("VENTAS");
+        aa.addActionListener(this::aaActionPerformed);
 
-        contenedorCentral.setMinimumSize(new java.awt.Dimension(883, 448));
-        contenedorCentral.setPreferredSize(new java.awt.Dimension(883, 448));
-        contenedorCentral.setLayout(new java.awt.BorderLayout());
+        mrventaf.setText("REGISTRAR VENTA");
+        mrventaf.addActionListener(this::mrventafActionPerformed);
+        aa.add(mrventaf);
 
-        lblLogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/8072883 (1).png"))); // NOI18N
-        contenedorCentral.add(lblLogo, java.awt.BorderLayout.CENTER);
+        jMenuBar1.add(aa);
 
-        btnSalir.setText("CERRAR SESION");
-        btnSalir.addActionListener(this::btnSalirActionPerformed);
+        jMenu2.setText("CAJA");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(23, 23, 23)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(contenedorCentral, javax.swing.GroupLayout.PREFERRED_SIZE, 905, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnSalir)))
-                .addContainerGap(27, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2)
-                    .addComponent(btnSalir))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(contenedorCentral, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+        maperturaf.setText("APERTURA");
+        maperturaf.addActionListener(this::maperturafActionPerformed);
+        jMenu2.add(maperturaf);
+
+        mcierref.setText("CIERRE");
+        mcierref.addActionListener(this::mcierrefActionPerformed);
+        jMenu2.add(mcierref);
+
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(piniciofarma, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(piniciofarma, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-       // 1. Limpiamos por completo el contenedor (esto quita el logo del inicio)
-    contenedorCentral.removeAll();
-    
-    // 2. Agregamos el panel de ventas indicándole que se posicione en el CENTRO
-    contenedorCentral.add(new PanelVentas(), java.awt.BorderLayout.CENTER);
-    
-    // 3. Forzamos a Java a redibujar los gráficos en pantalla
-    contenedorCentral.revalidate();
-    contenedorCentral.repaint();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void aaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aaActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // 1. Limpiamos por completo el contenedor
-    contenedorCentral.removeAll();
-    
-    // 2. Agregamos el panel de caja en el CENTRO
-    contenedorCentral.add(new PanelCaja(), java.awt.BorderLayout.CENTER);
-    
-    // 3. Redibujamos la pantalla
-    contenedorCentral.revalidate();
-    contenedorCentral.repaint();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_aaActionPerformed
 
-    private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
-        // 1. Limpias lo que sea que esté puesto (Ventas o Caja)
-contenedorCentral.removeAll();
+    private void mcierrefActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mcierrefActionPerformed
+        piniciofarma.add(panelcierre, "cierre caja");
+        vista.show(piniciofarma, "cierre caja");
+        SwingUtilities.updateComponentTreeUI(this);
+        this.repaint();
+    }//GEN-LAST:event_mcierrefActionPerformed
 
-// 2. Vuelves a agregar el label del logo que guardamos en el paso 1
-contenedorCentral.add(lblLogo);
+    private void maperturafActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_maperturafActionPerformed
+        piniciofarma.add(panelapertura, "aperturar caja");
+        vista.show(piniciofarma, "aperturar caja");
+        SwingUtilities.updateComponentTreeUI(this);
+        this.repaint();
+    }//GEN-LAST:event_maperturafActionPerformed
 
-// 3. Refrescas
-contenedorCentral.revalidate();
-contenedorCentral.repaint();
+    private void mrventafActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mrventafActionPerformed
+        piniciofarma.add(pventas, "registrar venta");
+        vista.show(piniciofarma, "registrar venta");
+        SwingUtilities.updateComponentTreeUI(this);
+        this.repaint();
+    }//GEN-LAST:event_mrventafActionPerformed
 
-// 1. Creamos e indicamos que se muestre el Login
-    INICIO_SESION login = new INICIO_SESION();
-    login.setVisible(true);
-    login.setLocationRelativeTo(null);
-    
-    // 2. Cerramos la ventana actual del Farmacéutico
-    this.dispose();
-    }//GEN-LAST:event_btnSalirActionPerformed
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
 
-    
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(() -> new FARMACEUTICO().setVisible(true));
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnSalir;
-    private javax.swing.JPanel contenedorCentral;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JLabel lblLogo;
+    private javax.swing.JMenu aa;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem maperturaf;
+    private javax.swing.JMenuItem mcierref;
+    private javax.swing.JMenuItem mrventaf;
+    private javax.swing.JPanel piniciofarma;
     // End of variables declaration//GEN-END:variables
 }
