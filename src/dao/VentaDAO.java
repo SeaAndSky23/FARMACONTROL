@@ -22,7 +22,7 @@ public class VentaDAO {
         PreparedStatement pstCajaAct = null;
         ResultSet rs = null;
 
-        String sqlVenta = "INSERT INTO VENTA (Id_caja, Id_usuario, Tipo_comprobante, Numero_comprobante, Total, Metodo_pago) VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlVenta = "INSERT INTO VENTA (Id_caja, Id_usuario, Id_cliente, Tipo_comprobante, Numero_comprobante, Total, Metodo_pago) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String sqlDetalle = "INSERT INTO DETALLE_VENTA (Id_venta, Id_producto, Cantidad, Precio_unitario) VALUES (?, ?, ?, ?)";
         String sqlStock = "UPDATE ALMACEN_STOCK SET stock_actual = stock_actual - ? WHERE Id_producto = ?";
         String sqlActualizarMontoCaja = "UPDATE APERTURA_CIERRE_CAJA SET Monto_ventas_calculado = Monto_ventas_calculado + ? WHERE Id_caja = ?";
@@ -35,10 +35,19 @@ public class VentaDAO {
             pstVenta = cn.prepareStatement(sqlVenta, Statement.RETURN_GENERATED_KEYS);
             pstVenta.setInt(1, venta.getIdCaja());
             pstVenta.setInt(2, venta.getIdUsuario());
-            pstVenta.setString(3, venta.getTipoComprobante());
-            pstVenta.setString(4, venta.getNumeroComprobante());
-            pstVenta.setDouble(5, venta.getTotal());
-            pstVenta.setString(6, venta.getMetodoPago());
+
+            // CONTROL CRUCIAL PARA EL ID_CLIENTE:
+            // Si es null, envía NULL a la BD; si tiene un ID, lo asigna correctamente.
+            if (venta.getIdCliente() == null || venta.getIdCliente() == 0) {
+                pstVenta.setNull(3, java.sql.Types.INTEGER);
+            } else {
+                pstVenta.setInt(3, venta.getIdCliente());
+            }
+
+            pstVenta.setString(4, venta.getTipoComprobante());
+            pstVenta.setString(5, venta.getNumeroComprobante());
+            pstVenta.setDouble(6, venta.getTotal());
+            pstVenta.setString(7, venta.getMetodoPago());
 
             int filasAfectadas = pstVenta.executeUpdate();
             if (filasAfectadas == 0) {
@@ -63,19 +72,16 @@ public class VentaDAO {
                 pstDetalle.setInt(2, det.getIdProducto());
                 pstDetalle.setInt(3, det.getCantidad());
                 pstDetalle.setDouble(4, det.getPrecioUnitario());
-                pstDetalle.addBatch(); // Se acumula para enviarse en conjunto (más rápido)
+                pstDetalle.addBatch();
 
                 // Restar Stock
                 pstStock.setInt(1, det.getCantidad());
                 pstStock.setInt(2, det.getIdProducto());
                 pstStock.addBatch();
             }
-
-            // Ejecutar las inserciones y actualizaciones en lote
             pstDetalle.executeBatch();
             pstStock.executeBatch();
 
-            // 4. Actualizar el monto acumulado en la caja abierta actual
             pstCajaAct = cn.prepareStatement(sqlActualizarMontoCaja);
             pstCajaAct.setDouble(1, venta.getTotal());
             pstCajaAct.setInt(2, venta.getIdCaja());
@@ -103,7 +109,6 @@ public class VentaDAO {
             }
             return false;
         } finally {
-            // Cerrar todas las conexiones de forma segura
             try {
                 if (rs != null) {
                     rs.close();
@@ -145,34 +150,37 @@ public class VentaDAO {
 
     // AGREGAR ESTO DENTRO DE TU CLASE VENTADAO
     public String generarSiguienteNumeroComprobante(String tipoComprobante) {
-        String sql = "SELECT MAX(numero_comprobante) FROM venta WHERE tipo_comprobante = ?";
+        // 1. Traemos TODOS los números de ese tipo de comprobante
+        String sql = "SELECT numero_comprobante FROM VENTA WHERE UPPER(tipo_comprobante) = UPPER(?)";
+        int maxNumero = 0;
 
         try (java.sql.Connection con = ConexioDB.getConexion(); java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, tipoComprobante);
+            ps.setString(1, tipoComprobante.trim());
             java.sql.ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                String ultimoNumero = rs.getString(1);
-                if (ultimoNumero == null || ultimoNumero.trim().isEmpty()) {
-                    return "00000001"; // Si la tabla está vacía
+            // 2. Recorremos los registros y extraemos el número puro con Java
+            while (rs.next()) {
+                String numDoc = rs.getString("numero_comprobante");
+                if (numDoc != null && !numDoc.trim().isEmpty()) {
+
+                    String soloNumeros = numDoc.replaceAll("\\D", "");
+
+                    if (!soloNumeros.isEmpty()) {
+                        int numActual = Integer.parseInt(soloNumeros);
+                        // Buscamos cuál es el número más alto manualmente
+                        if (numActual > maxNumero) {
+                            maxNumero = numActual;
+                        }
+                    }
                 }
-
-                // FILTRO CRUCIAL: Elimina "B", "F" o cualquier letra que haya quedado en la BD
-                String soloNumeros = ultimoNumero.replaceAll("\\D", "");
-
-                // Si por alguna razón la cadena quedó vacía tras limpiar, iniciamos en 1
-                if (soloNumeros.isEmpty()) {
-                    return "00000001";
-                }
-
-                // Ahora sí es seguro convertir a entero y sumar 1
-                int siguienteNumero = Integer.parseInt(soloNumeros) + 1;
-                return String.format("%08d", siguienteNumero); // Retorna "00000003"
             }
+            int siguienteNumero = maxNumero + 1;
+            return String.format("%08d", siguienteNumero); 
+
         } catch (Exception e) {
             System.out.println("Error al generar correlativo: " + e.getMessage());
         }
-        return "00000001"; // Respaldo en caso de error masivo
+        return "00000001"; 
     }
 }

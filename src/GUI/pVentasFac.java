@@ -20,6 +20,8 @@ import modelo.Sesion;
  */
 public class pVentasFac extends javax.swing.JPanel {
 
+    private Integer idClienteSeleccionado = null;
+
     /**
      * Creates new form pVentasFac
      */
@@ -30,9 +32,11 @@ public class pVentasFac extends javax.swing.JPanel {
         mostrarCajeroLogueado();
         actualizarSiguienteNumeroEnPantalla();
         this.repaint();
+        configurarEventoDni();
     }
 
     private DefaultTableModel modeloTabla;
+    private int idClienteActual = 0;
 
     public void configurarTablaVentas() {
         // 2. Definir las columnas de la tabla (incluyendo ID oculto para la BD)
@@ -129,9 +133,8 @@ public class pVentasFac extends javax.swing.JPanel {
                                 modeloTabla.setValueAt(precio, fila, 4);
                                 modeloTabla.setValueAt(igvCalculado * cantidad, fila, 5);
                                 modeloTabla.setValueAt(subtotal, fila, 6);
-                                modeloTabla.setValueAt(idProducto, fila, 7); // ID oculto
+                                modeloTabla.setValueAt(idProducto, fila, 7);
 
-                                // Si es la última fila, agregar una fila en blanco nueva para el siguiente producto
                                 if (fila == modeloTabla.getRowCount() - 1) {
                                     modeloTabla.addRow(new Object[]{"", "", "", 0, 0.0, 0.0, 0.0, ""});
                                 }
@@ -140,24 +143,20 @@ public class pVentasFac extends javax.swing.JPanel {
                                 modeloTabla.setValueAt("", fila, 0); // Limpiar celda errónea
                             }
                         }
-                    } // ESCENARIO B: El usuario cambió manualmente la Cantidad (Columna 3)
-                    else if (columna == 3) {
+                    } else if (columna == 3) {
                         Integer cantidad = (Integer) modeloTabla.getValueAt(fila, 3);
                         Double precio = (Double) modeloTabla.getValueAt(fila, 4);
                         Integer idProd = (Integer) modeloTabla.getValueAt(fila, 7);
 
-                        // Verificar que sea un producto válido ya cargado
                         if (idProd != null && cantidad != null && cantidad > 0) {
                             double subtotal = cantidad * precio;
 
-                            // Recalcular IGV proporcional según la nueva cantidad
-                            // (Buscamos si aplica IGV volviendo a evaluar el monto)
                             double subtotalFiltrado = subtotal;
 
-                            modeloTabla.setValueAt(subtotalFiltrado, fila, 6); // Actualiza subtotal de la fila
+                            modeloTabla.setValueAt(subtotalFiltrado, fila, 6);
                         } else if (cantidad != null && cantidad <= 0) {
                             javax.swing.JOptionPane.showMessageDialog(null, "La cantidad debe ser mayor a 0.");
-                            modeloTabla.setValueAt(1, fila, 3); // Resetear a 1
+                            modeloTabla.setValueAt(1, fila, 3);
                         }
                     }
 
@@ -208,21 +207,88 @@ public class pVentasFac extends javax.swing.JPanel {
         // Validamos que la sesión no esté vacía
         if (Sesion.nombreUsuario != null && !Sesion.nombreUsuario.isEmpty()) {
 
-            txtelef.setText(Sesion.nombreUsuario);
+            tcajero.setText(Sesion.nombreUsuario);
 
-            txtelef.setEditable(false); 
+            tcajero.setEditable(false);
         } else {
-            txtelef.setText("SIN CAJERO ACTIVO");
+            tcajero.setText("SIN CAJERO ACTIVO");
+        }
+    }
+
+    private void configurarEventoDni() {
+        // Evento cuando el usuario presiona ENTER en el campo DNI
+        txtdni.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buscarORegistrarCliente();
+            }
+        });
+
+        // Evento opcional: cuando el usuario cambia de casilla (pierde el foco)
+        txtdni.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                buscarORegistrarCliente();
+            }
+        });
+    }
+
+    private void buscarORegistrarCliente() {
+        String dni = txtdni.getText().trim();
+
+        // Validar que el DNI tenga una longitud correcta (Ej: 8 dígitos en Perú)
+        if (dni.isEmpty() || dni.length() != 8) {
+            return;
+        }
+
+        // Instanciamos el DAO de clientes (Debes tener uno similar a ProductoDAO)
+        dao.ClienteDAO clienteDAO = new dao.ClienteDAO();
+        Object[] cliente = clienteDAO.buscarPorDni(dni);
+
+        if (cliente != null) {
+            idClienteSeleccionado = (int) cliente[0]; // Guardamos el ID oculto
+            String nombreCompleto = (String) cliente[1];
+            String celular = (String) cliente[2];
+
+            txtcliente.setText(nombreCompleto);
+            txtelef.setText(celular);
+        } else {
+            // Si NO existe, abrimos la ventana emergente
+            int respuesta = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "El cliente con DNI " + dni + " no está registrado.\n¿Desea registrarlo ahora?",
+                    "Cliente no encontrado",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (respuesta == javax.swing.JOptionPane.YES_OPTION) {
+                // Abrir JDialog emergente de forma modal (bloquea la ventana de atrás hasta que termine)
+                FormularioClienteDialog dialog = new FormularioClienteDialog(null, true, dni);
+                dialog.setVisible(true);
+
+                // Al cerrar el diálogo, volvemos a buscar para cargar los datos recién creados
+                buscarORegistrarCliente();
+            } else {
+                // Si cancela, limpiamos el DNI para evitar errores
+                txtdni.setText("");
+                txtcliente.setText("");
+                txtelef.setText("");
+            }
         }
     }
 
     private void limpiarFormularioVenta() {
-        // 1. Limpiar campos de texto de totales
         txtNeto.setText("0.00");
         txtIgvTotal.setText("0.00");
         txtTotalVenta.setText("0.00");
+        txtdni.setText("");
+        txtcliente.setText("");
+        txtelef.setText("");
 
-        // 2. Limpiar todas las filas de la tabla y dejar solo una fila inicial vacía
+        this.idClienteSeleccionado = null;
+        this.idClienteActual = 0;
+
         while (modeloTabla.getRowCount() > 0) {
             modeloTabla.removeRow(0);
         }
@@ -532,8 +598,8 @@ public class pVentasFac extends javax.swing.JPanel {
 
         try {
             // 3. Capturar datos de la cabecera de la interfaz
-            String tipoComprobante = "BOLETA"; // O el valor de un JComboBox si manejas Facturas
-            String metodoPago = cboMetodoPago.getSelectedItem().toString(); // 'EFECTIVO', 'TARJETA', etc.
+            String tipoComprobante = "BOLETA";
+            String metodoPago = cboMetodoPago.getSelectedItem().toString();
             double totalVenta = Double.parseDouble(txtTotalVenta.getText().replace(",", "."));
 
             // Generar número de comprobante automático desde el DAO para evitar duplicados
@@ -541,12 +607,15 @@ public class pVentasFac extends javax.swing.JPanel {
 
             int idUsuarioLogueado = Sesion.idUsuario;
 
-            // Llenar el objeto Venta (YA NO SE INCLUYE SERIE)
             VentaDTO nuevaVenta = new VentaDTO();
             nuevaVenta.setIdCaja(idCajaActiva);
             nuevaVenta.setIdUsuario(idUsuarioLogueado);
+
+            // ASIGNACIÓN CRÍTICA: Forzamos la lectura de la variable de clase
+            nuevaVenta.setIdCliente(this.idClienteSeleccionado);
+
             nuevaVenta.setTipoComprobante(tipoComprobante);
-            nuevaVenta.setNumeroComprobante(numeroComp); // Asignación automática
+            nuevaVenta.setNumeroComprobante(numeroComp);
             nuevaVenta.setTotal(totalVenta);
             nuevaVenta.setMetodoPago(metodoPago);
 
@@ -575,7 +644,7 @@ public class pVentasFac extends javax.swing.JPanel {
             if (exito) {
                 javax.swing.JOptionPane.showMessageDialog(this, "¡Venta registrada con éxito!\nComprobante N°: " + numeroComp, "Sistema de Ventas", javax.swing.JOptionPane.INFORMATION_MESSAGE);
 
-                // 6. Limpiar la interfaz para la siguiente venta y actualizar el correlativo visual si es necesario
+                // 6. Limpiar la interfaz para la siguiente venta y actualizar el correlativo visual
                 limpiarFormularioVenta();
                 actualizarSiguienteNumeroEnPantalla();
 

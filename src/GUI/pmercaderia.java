@@ -243,7 +243,7 @@ public class pmercaderia extends javax.swing.JPanel {
 
         cbPactivo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        jLabel5.setText("PRESENTACION");
+        jLabel5.setText("CONCENTRACION");
 
         cbConcentracion.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 

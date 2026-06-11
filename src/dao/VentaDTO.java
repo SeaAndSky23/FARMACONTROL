@@ -13,6 +13,7 @@ public class VentaDTO {
     private int idVenta;
     private int idCaja;
     private int idUsuario;
+    private Integer idCliente;
     private String tipoComprobante;
     private String serieComprobante;
     private String numeroComprobante;
@@ -96,7 +97,13 @@ public class VentaDTO {
     public void setMetodoPago(String metodoPago) {
         this.metodoPago = metodoPago;
     }
-    
-    
-    
+
+    public Integer getIdCliente() {
+        return idCliente;
+    }
+
+    public void setIdCliente(Integer idCliente) {
+        this.idCliente = idCliente;
+    }
+
 }
