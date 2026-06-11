@@ -51,4 +51,30 @@ public class CajaDAO {
         }
         return null; // Si no hay cajas abiertas, retorna null
     }
+
+    public int obtenerCajaAbierta(int idUsuario) {
+
+        String sql = """
+        SELECT TOP 1 Id_caja
+        FROM APERTURA_CIERRE_CAJA
+        WHERE Id_usuario = ?
+        AND Estado = 1
+    """;
+
+        try (Connection cn = ConexioDB.getConexion(); PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setInt(1, idUsuario);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("Id_caja");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
 }
