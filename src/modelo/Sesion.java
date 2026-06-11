@@ -10,8 +10,8 @@ package modelo;
  */
 public class Sesion {
 
-    private static int idUsuario;
-    private static String nombreUsuario;
+    public static int idUsuario;
+    public static String nombreUsuario;
     private static String nombreRol;
 
     // Getters y Setters Estáticos

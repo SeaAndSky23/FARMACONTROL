@@ -3,20 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/FARMACONTROL/src/GUI/INICIO_SESION.java</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/FARMACONTROL/src/dao/UsuarioDAO.java</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/FARMACONTROL/src/farmacontrol/FARMACONTROL.java</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/FARMACONTROL/src/GUI/pVentasFac.java</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/FARMACONTROL/src/modelo/Rol.java</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/FARMACONTROL/src/modelo/Trabajador.java</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/FARMACONTROL/src/modelo/Ubigeo.java</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/FARMACONTROL/src/GUI/palmacen.java</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/FARMACONTROL/src/GUI/pmercaderia.java</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/FARMACONTROL/src/GUI/PanelCaja.java</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/FARMACONTROL/src/GUI/pcierre.java</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/FARMACONTROL/src/GUI/papertura.java</file>
-            <file>file:/D:/Users/USUARIO/Documents/NetBeansProjects/FARMACONTROL/src/GUI/FARMACEUTICO.java</file>
             <file>file:/D:/Users/USUARIO/Documents/NetBeansProjects/FARMACONTROL/src/GUI/INICIO_ADMIN.java</file>
+            <file>file:/D:/Users/USUARIO/Documents/NetBeansProjects/FARMACONTROL/src/GUI/pVentasFac.java</file>
+            <file>file:/D:/Users/USUARIO/Documents/NetBeansProjects/FARMACONTROL/src/GUI/pmercaderia.java</file>
+            <file>file:/D:/Users/USUARIO/Documents/NetBeansProjects/FARMACONTROL/src/GUI/pkardexinv.java</file>
         </group>
     </open-files>
 </project-private>
