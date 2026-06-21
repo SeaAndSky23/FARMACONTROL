@@ -11,14 +11,23 @@ package modelo;
 public class ObjetoCombo {
     private int id;
     private String nombre;
+    private int multiploDefecto;
 
     public ObjetoCombo(int id, String nombre) {
         this.id = id;
         this.nombre = nombre;
+        this.multiploDefecto = 1;
+    }
+    
+    public ObjetoCombo(int id, String nombre, int multiploDefecto) {
+        this.id = id;
+        this.nombre = nombre;
+        this.multiploDefecto = multiploDefecto;
     }
 
     public int getId() { return id; }
     public String getNombre() { return nombre; }
+    public int getMultiploDefecto() { return multiploDefecto; }
 
     // Este método es CRUCIAL. JComboBox usa toString() para saber qué mostrar en pantalla
     @Override

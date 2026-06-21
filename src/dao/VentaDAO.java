@@ -4,6 +4,7 @@
  */
 package dao;
 
+import DTO.VentaDTO;
 import conexion.ConexioDB;
 import java.sql.*;
 import java.util.ArrayList;
@@ -22,7 +23,14 @@ public class VentaDAO {
         PreparedStatement pstCajaAct = null;
         ResultSet rs = null;
 
-        String sqlVenta = "INSERT INTO VENTA (Id_caja, Id_usuario, Id_cliente, Tipo_comprobante, Numero_comprobante, Total, Metodo_pago) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sqlVenta = "INSERT INTO VENTA "
+                + "(Id_caja, Id_usuario, id_cliente, Id_tipo_comprobante, "
+                + "Numero_comprobante, Total, Id_metodo_pago) "
+                + "VALUES (?, ?, ?, "
+                + "  (SELECT Id_tipo_comprobante FROM TIPO_COMPROBANTE WHERE UPPER(nombre_tipo) = UPPER(?)), "
+                + "  ?, ?, "
+                + "  (SELECT Id_metodo_pago FROM METODO_PAGO WHERE UPPER(nombre_metodo) = UPPER(?)))";
+
         String sqlDetalle = "INSERT INTO DETALLE_VENTA (Id_venta, Id_producto, Cantidad, Precio_unitario) VALUES (?, ?, ?, ?)";
         String sqlStock = "UPDATE ALMACEN_STOCK SET stock_actual = stock_actual - ? WHERE Id_producto = ?";
         String sqlActualizarMontoCaja = "UPDATE APERTURA_CIERRE_CAJA SET Monto_ventas_calculado = Monto_ventas_calculado + ? WHERE Id_caja = ?";
@@ -31,13 +39,10 @@ public class VentaDAO {
             cn = ConexioDB.getConexion();
             cn.setAutoCommit(false);
 
-            // 2. Insertar la Cabecera de la Venta (Se pide el ID generado)
             pstVenta = cn.prepareStatement(sqlVenta, Statement.RETURN_GENERATED_KEYS);
             pstVenta.setInt(1, venta.getIdCaja());
             pstVenta.setInt(2, venta.getIdUsuario());
 
-            // CONTROL CRUCIAL PARA EL ID_CLIENTE:
-            // Si es null, envía NULL a la BD; si tiene un ID, lo asigna correctamente.
             if (venta.getIdCliente() == null || venta.getIdCliente() == 0) {
                 pstVenta.setNull(3, java.sql.Types.INTEGER);
             } else {
@@ -148,39 +153,54 @@ public class VentaDAO {
         return idCaja;
     }
 
-    // AGREGAR ESTO DENTRO DE TU CLASE VENTADAO
+    // NUMERO DE COMPROBANTE
     public String generarSiguienteNumeroComprobante(String tipoComprobante) {
-        // 1. Traemos TODOS los números de ese tipo de comprobante
-        String sql = "SELECT numero_comprobante FROM VENTA WHERE UPPER(tipo_comprobante) = UPPER(?)";
+        String sql = "SELECT v.Numero_comprobante "
+                + "FROM VENTA v "
+                + "INNER JOIN TIPO_COMPROBANTE tc ON v.Id_tipo_comprobante = tc.Id_tipo_comprobante "
+                + "WHERE UPPER(tc.nombre_tipo) = UPPER(?)";
         int maxNumero = 0;
+        String prefijo = obtenerPrefijo(tipoComprobante);
 
         try (java.sql.Connection con = ConexioDB.getConexion(); java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, tipoComprobante.trim());
             java.sql.ResultSet rs = ps.executeQuery();
 
-            // 2. Recorremos los registros y extraemos el número puro con Java
             while (rs.next()) {
-                String numDoc = rs.getString("numero_comprobante");
+                String numDoc = rs.getString("Numero_comprobante");
                 if (numDoc != null && !numDoc.trim().isEmpty()) {
-
                     String soloNumeros = numDoc.replaceAll("\\D", "");
-
                     if (!soloNumeros.isEmpty()) {
                         int numActual = Integer.parseInt(soloNumeros);
-                        // Buscamos cuál es el número más alto manualmente
                         if (numActual > maxNumero) {
                             maxNumero = numActual;
                         }
                     }
                 }
             }
-            int siguienteNumero = maxNumero + 1;
-            return String.format("%08d", siguienteNumero); 
+            return prefijo + String.format("%08d", maxNumero + 1);
 
         } catch (Exception e) {
             System.out.println("Error al generar correlativo: " + e.getMessage());
         }
-        return "00000001"; 
+        return prefijo + "00000001";
+    }
+
+// BOLETA -> B, FACTURA -> F, NOTA DE VENTA -> N
+    private String obtenerPrefijo(String tipoComprobante) {
+        if (tipoComprobante == null) {
+            return "";
+        }
+        switch (tipoComprobante.trim().toUpperCase()) {
+            case "BOLETA":
+                return "B";
+            case "FACTURA":
+                return "F";
+            case "NOTA DE VENTA":
+                return "N";
+            default:
+                return "";
+        }
     }
 }

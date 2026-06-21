@@ -18,10 +18,10 @@ public class JDproducto extends javax.swing.JDialog {
     private final ProductoDAO productoDAO = new ProductoDAO();
 
     private final String[] columnas = {
-        "ID", "Código de Barras", "Descripción", "Marca", "Principio Activo",
-        "Concentración", "Forma Farmacéutica", "Fecha Vencimiento",
-        "Condición de Venta", "Precio Venta", "Precio Compra"
-    };
+    "ID", "Código de Barras", "Descripción", "Marca", "Principio Activo",
+    "Concentración", "Forma Farmacéutica", "Fecha Vencimiento",
+    "Condición de Venta", "Medida", "Múltiplo", "Precio Venta", "Precio Compra"
+};
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(JDproducto.class.getName());
 
@@ -35,15 +35,14 @@ public class JDproducto extends javax.swing.JDialog {
     }
 
     public void ajustarAnchosTabla(JTable tabla) {
-        // Definir los anchos preferidos en píxeles para las 11 columnas
-        int[] anchos = {20, 120, 200, 160, 160, 160, 100, 90, 90, 85, 85};
+    int[] anchos = {20, 120, 200, 140, 140, 130, 100, 90, 110, 90, 70, 85, 85};
 
-        for (int i = 0; i < tabla.getColumnCount(); i++) {
-            if (i < anchos.length) {
-                tabla.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
-            }
+    for (int i = 0; i < tabla.getColumnCount(); i++) {
+        if (i < anchos.length) {
+            tabla.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
         }
     }
+}
 
     private void cargarProductos() {
         List<Object[]> productos = productoDAO.listarProductos();

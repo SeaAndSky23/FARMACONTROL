@@ -10,7 +10,7 @@ import javax.swing.event.TableModelEvent;
 import java.util.ArrayList;
 import dao.ProductoDAO;
 import dao.VentaDAO;
-import dao.VentaDTO;
+import DTO.VentaDTO;
 import dao.DetalleVentaDTO;
 import modelo.Sesion;
 
@@ -30,6 +30,7 @@ public class pVentasFac extends javax.swing.JPanel {
         configurarTablaVentas();
         this.revalidate();
         mostrarCajeroLogueado();
+        configurarEventoTipoComprobante();
         actualizarSiguienteNumeroEnPantalla();
         this.repaint();
         configurarEventoDni();
@@ -195,14 +196,32 @@ public class pVentasFac extends javax.swing.JPanel {
         txtIgvTotal.setText(String.format("%.2f", totalIgv));
         txtTotalVenta.setText(String.format("%.2f", totalGeneral));
     }
-
+    
+    //TIPO COMPROVANTE DE VENTA
+    private void configurarEventoTipoComprobante() {
+        cboMetodoPago1.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                actualizarSiguienteNumeroEnPantalla();
+            }
+        });
+    } 
+    
     private void actualizarSiguienteNumeroEnPantalla() {
         VentaDAO ventaDAO = new VentaDAO();
-        // Genera el siguiente correlativo para "BOLETA" de forma automática
-        String siguienteNumero = ventaDAO.generarSiguienteNumeroComprobante("BOLETA");
+        String tipoComprobante = obtenerTipoComprobanteSeleccionado();
+        String siguienteNumero = ventaDAO.generarSiguienteNumeroComprobante(tipoComprobante);
         txtNumeroBoleta.setText(siguienteNumero);
     }
+    
+    private String obtenerTipoComprobanteSeleccionado() {
+    if (cboMetodoPago1.getSelectedItem() == null) {
+        return "BOLETA";
+    }
+    return cboMetodoPago1.getSelectedItem().toString().trim();
+}
 
+    //CAJERO
     private void mostrarCajeroLogueado() {
         // Validamos que la sesión no esté vacía
         if (Sesion.nombreUsuario != null && !Sesion.nombreUsuario.isEmpty()) {
@@ -215,6 +234,7 @@ public class pVentasFac extends javax.swing.JPanel {
         }
     }
 
+    //CLIENTES
     private void configurarEventoDni() {
         // Evento cuando el usuario presiona ENTER en el campo DNI
         txtdni.addActionListener(new java.awt.event.ActionListener() {
@@ -277,6 +297,7 @@ public class pVentasFac extends javax.swing.JPanel {
             }
         }
     }
+    //LIMPIAR
 
     private void limpiarFormularioVenta() {
         txtNeto.setText("0.00");
@@ -307,11 +328,11 @@ public class pVentasFac extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
         txtNumeroBoleta = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         cboMetodoPago = new javax.swing.JComboBox<>();
+        cboMetodoPago1 = new javax.swing.JComboBox<>();
         jPanel3 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         txtdni = new javax.swing.JTextField();
@@ -340,11 +361,6 @@ public class pVentasFac extends javax.swing.JPanel {
 
         jLabel1.setText("DOCUMENTO");
 
-        jTextField1.setEditable(false);
-        jTextField1.setBackground(new java.awt.Color(204, 204, 204));
-        jTextField1.setText("BOLETA ELECTRONICA");
-        jTextField1.setBorder(null);
-
         txtNumeroBoleta.setEditable(false);
         txtNumeroBoleta.setBackground(new java.awt.Color(204, 204, 204));
         txtNumeroBoleta.setText("B001");
@@ -355,6 +371,8 @@ public class pVentasFac extends javax.swing.JPanel {
         jLabel6.setText("FORMA DE PAGO");
 
         cboMetodoPago.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "EFECTIVO", "BILLETERA DIGITAL" }));
+
+        cboMetodoPago1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "BOLETA", "FACTURA", "NOTA DE VENTA" }));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -368,18 +386,18 @@ public class pVentasFac extends javax.swing.JPanel {
                     .addComponent(jLabel1))
                 .addGap(30, 30, 30)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtNumeroBoleta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cboMetodoPago, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(85, Short.MAX_VALUE))
+                    .addComponent(cboMetodoPago, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cboMetodoPago1, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtNumeroBoleta, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(52, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(13, 13, 13)
+                .addGap(10, 10, 10)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cboMetodoPago1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(txtNumeroBoleta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -598,7 +616,7 @@ public class pVentasFac extends javax.swing.JPanel {
 
         try {
             // 3. Capturar datos de la cabecera de la interfaz
-            String tipoComprobante = "BOLETA";
+            String tipoComprobante = obtenerTipoComprobanteSeleccionado();
             String metodoPago = cboMetodoPago.getSelectedItem().toString();
             double totalVenta = Double.parseDouble(txtTotalVenta.getText().replace(",", "."));
 
@@ -661,6 +679,7 @@ public class pVentasFac extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btncobrar;
     private javax.swing.JComboBox<String> cboMetodoPago;
+    private javax.swing.JComboBox<String> cboMetodoPago1;
     private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -677,7 +696,6 @@ public class pVentasFac extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTable tblVenta;
     private javax.swing.JTextField tcajero;
     private javax.swing.JTextField txtIgvTotal;
