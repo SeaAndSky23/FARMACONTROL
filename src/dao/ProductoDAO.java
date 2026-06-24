@@ -23,49 +23,35 @@ public class ProductoDAO {
 
     private Connection cn = ConexioDB.getConexion();
 
-    private static final String SQL_BASE
-            = "SELECT p.Id_producto, p.codigo_barras, p.descripcion, "
-            + "m.nombre_marca, pa.nombre_principio, c.valor_concentracion, "
-            + "f.nombre_forma, p.fecha_vencimiento, cv.nombre_condicion, "
-            + "um.nombre_unidad, pp.multiplo, pp.aplica_igv, pp.precio_venta, pp.precio_compra "
-            + "FROM PRODUCTO p "
-            + "INNER JOIN MARCA m ON p.Id_marca = m.Id_marca "
-            + "INNER JOIN PRINCIPIO_ACTIVO pa ON p.Id_principio = pa.Id_principio "
-            + "INNER JOIN CONCENTRACION c ON p.Id_concentracion = c.Id_concentracion "
-            + "INNER JOIN FORMA_FARMACEUTICA f ON p.Id_forma = f.Id_forma "
-            + "INNER JOIN CONDICION_VENTA cv ON p.Id_condicion = cv.Id_condicion "
-            + "LEFT JOIN PRODUCTO_PRESENTACION pp ON p.Id_producto = pp.Id_producto "
-            + "LEFT JOIN UNIDAD_MEDIDA um ON pp.Id_unidad = um.Id_unidad ";
+    private static final String SQL_BASE = "SELECT * FROM VW_PRODUCTOS_COMPLETO ";
 
     public List<Object[]> listarProductos() {
         List<Object[]> lista = new ArrayList<>();
-        String sql = SQL_BASE + "ORDER BY p.Id_producto, pp.Id_presentacion";
+        String sql = SQL_BASE + "ORDER BY Id_producto, Id_presentacion";
 
-        try {
-            PreparedStatement pst = cn.prepareStatement(sql);
-            ResultSet rs = pst.executeQuery();
+        try (PreparedStatement pst = cn.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
             while (rs.next()) {
                 lista.add(mapearFila(rs));
             }
         } catch (SQLException e) {
-            System.out.println("Error al listar productos: " + e.getMessage());
+            e.printStackTrace();
         }
         return lista;
     }
 
     public List<Object[]> buscarPorDescripcion(String descripcion) {
         List<Object[]> lista = new ArrayList<>();
-        String sql = SQL_BASE + "WHERE p.descripcion LIKE ? ORDER BY p.Id_producto, pp.Id_presentacion";
+        String sql = SQL_BASE + "WHERE descripcion LIKE ? ORDER BY Id_producto, Id_presentacion";
 
-        try {
-            PreparedStatement pst = cn.prepareStatement(sql);
+        try (PreparedStatement pst = cn.prepareStatement(sql)) {
             pst.setString(1, "%" + descripcion + "%");
-            ResultSet rs = pst.executeQuery();
-            while (rs.next()) {
-                lista.add(mapearFila(rs));
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearFila(rs));
+                }
             }
         } catch (SQLException e) {
-            System.out.println("Error al buscar producto por descripción: " + e.getMessage());
+            e.printStackTrace();
         }
         return lista;
     }
@@ -229,34 +215,25 @@ public class ProductoDAO {
     //MOSTRAR TODAS LAS PRESENTACIONES POR PRODUCTO
     public List<Object[]> listarPresentacionesPorCodigoBarras(String codigo) {
         List<Object[]> lista = new ArrayList<>();
-        String sql = "SELECT p.Id_producto, "
-                + "(p.descripcion + ' ' + m.nombre_marca) AS desc_com, "
-                + "pp.Id_presentacion, um.nombre_unidad, pp.multiplo, "
-                + "pp.precio_venta, pp.aplica_igv "
-                + "FROM PRODUCTO p "
-                + "INNER JOIN MARCA m ON p.Id_marca = m.Id_marca "
-                + "INNER JOIN PRODUCTO_PRESENTACION pp ON p.Id_producto = pp.Id_producto "
-                + "INNER JOIN UNIDAD_MEDIDA um ON pp.Id_unidad = um.Id_unidad "
-                + "WHERE p.codigo_barras = ? "
-                + "ORDER BY pp.Id_presentacion ASC";
+        String sql = SQL_BASE + "WHERE codigo_barras = ? ORDER BY Id_presentacion ASC";
 
-        try {
-            PreparedStatement pst = cn.prepareStatement(sql);
-            pst.setString(1, codigo);
-            ResultSet rs = pst.executeQuery();
-            while (rs.next()) {
-                Object[] fila = new Object[7];
-                fila[0] = rs.getInt("Id_producto");
-                fila[1] = rs.getString("desc_com");
-                fila[2] = rs.getInt("Id_presentacion");
-                fila[3] = rs.getString("nombre_unidad");
-                fila[4] = rs.getInt("multiplo");
-                fila[5] = rs.getDouble("precio_venta");
-                fila[6] = rs.getBoolean("aplica_igv");
-                lista.add(fila);
+        try (PreparedStatement pst = cn.prepareStatement(sql)) {
+            pst.setString(1, codigo.trim());
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    Object[] fila = new Object[7];
+                    fila[0] = rs.getInt("Id_producto");
+                    fila[1] = rs.getString("descripcion") + " " + rs.getString("nombre_marca");
+                    fila[2] = rs.getInt("Id_presentacion");
+                    fila[3] = rs.getString("nombre_unidad");
+                    fila[4] = rs.getInt("multiplo");
+                    fila[5] = rs.getDouble("precio_venta");
+                    fila[6] = rs.getBoolean("aplica_igv");
+                    lista.add(fila);
+                }
             }
         } catch (SQLException e) {
-            System.out.println("Error al listar presentaciones: " + e.getMessage());
+            e.printStackTrace();
         }
         return lista;
     }

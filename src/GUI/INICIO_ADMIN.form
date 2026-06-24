@@ -34,7 +34,7 @@
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="ming_producto">
               <Properties>
-                <Property name="text" type="java.lang.String" value="INGRESO PRODUCTO"/>
+                <Property name="text" type="java.lang.String" value="CREAR PRODUCTO"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ming_productoActionPerformed"/>

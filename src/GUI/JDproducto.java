@@ -16,12 +16,22 @@ import dao.ProductoDAO;
 public class JDproducto extends javax.swing.JDialog {
 
     private final ProductoDAO productoDAO = new ProductoDAO();
+    private Object[] productoSeleccionado = null;
+    private String codigoBarrasSeleccionado = null;
+
+    public String getCodigoBarrasSeleccionado() {
+        return codigoBarrasSeleccionado;
+    }
+
+    public Object[] getProductoSeleccionado() {
+        return productoSeleccionado;
+    }
 
     private final String[] columnas = {
-    "ID", "Código de Barras", "Descripción", "Marca", "Principio Activo",
-    "Concentración", "Forma Farmacéutica", "Fecha Vencimiento",
-    "Condición de Venta", "Medida", "Múltiplo", "Precio Venta", "Precio Compra"
-};
+        "ID", "Código de Barras", "Descripción", "Marca", "Principio Activo",
+        "Concentración", "Forma Farmacéutica", "Fecha Vencimiento",
+        "Condición de Venta", "Medida", "Múltiplo", "Precio Venta", "Precio Compra"
+    };
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(JDproducto.class.getName());
 
@@ -31,18 +41,41 @@ public class JDproducto extends javax.swing.JDialog {
     public JDproducto(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        setTitle("Catálogo de Productos");
+        setLocationRelativeTo(parent);
         cargarProductos();
+
+        txtbuscar.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                buscarProducto();
+            }
+        });
+
+        tproducto.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2) {
+                    int fila = tproducto.getSelectedRow();
+                    if (fila >= 0) {
+                        // columna 1 = codigo_barras
+                        codigoBarrasSeleccionado = tproducto.getValueAt(fila, 1).toString();
+                        dispose();
+                    }
+                }
+            }
+        });
     }
 
     public void ajustarAnchosTabla(JTable tabla) {
-    int[] anchos = {20, 120, 200, 140, 140, 130, 100, 90, 110, 90, 70, 85, 85};
+        int[] anchos = {20, 120, 200, 140, 140, 130, 100, 90, 110, 90, 70, 85, 85};
 
-    for (int i = 0; i < tabla.getColumnCount(); i++) {
-        if (i < anchos.length) {
-            tabla.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+        for (int i = 0; i < tabla.getColumnCount(); i++) {
+            if (i < anchos.length) {
+                tabla.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
+            }
         }
     }
-}
 
     private void cargarProductos() {
         List<Object[]> productos = productoDAO.listarProductos();
@@ -58,13 +91,6 @@ public class JDproducto extends javax.swing.JDialog {
         }
 
         List<Object[]> productos = productoDAO.buscarPorDescripcion(texto);
-
-        if (productos.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "No se encontraron productos con esa descripción.",
-                    "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
-        }
-
         llenarTabla(productos);
     }
 
@@ -75,13 +101,21 @@ public class JDproducto extends javax.swing.JDialog {
                 return false;
             }
         };
+
+        java.util.Set<Integer> idsAgregados = new java.util.HashSet<>();
+
         for (Object[] fila : productos) {
-            modelo.addRow(fila);
+            Integer idProducto = (Integer) fila[0]; // columna 0 = Id_producto
+
+            if (!idsAgregados.contains(idProducto)) {
+                idsAgregados.add(idProducto);
+                modelo.addRow(fila);
+            }
         }
+
         tproducto.setModel(modelo);
         ajustarAnchosTabla(tproducto);
     }
-    
 
     /**
      * This method is called from within the constructor to initialize the form.

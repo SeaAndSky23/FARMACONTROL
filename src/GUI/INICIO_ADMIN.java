@@ -98,7 +98,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
 
         cmercaderia.setText("MERCADERIA");
 
-        ming_producto.setText("INGRESO PRODUCTO");
+        ming_producto.setText("CREAR PRODUCTO");
         ming_producto.addActionListener(this::ming_productoActionPerformed);
         cmercaderia.add(ming_producto);
 
