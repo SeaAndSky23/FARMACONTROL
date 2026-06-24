@@ -4,7 +4,8 @@
  */
 package dao;
 
-import DTO.VentaDTO;
+import modelo.DetalleVentaDTO;
+import modelo.VentaDTO;
 import conexion.ConexioDB;
 import java.sql.*;
 import java.util.ArrayList;
@@ -80,7 +81,7 @@ public class VentaDAO {
                 pstDetalle.addBatch();
 
                 // Restar Stock
-                pstStock.setInt(1, det.getCantidad());
+                pstStock.setInt(1, det.getCantidadStock());
                 pstStock.setInt(2, det.getIdProducto());
                 pstStock.addBatch();
             }

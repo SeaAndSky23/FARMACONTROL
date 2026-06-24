@@ -9,6 +9,8 @@ import java.sql.*;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
 import conexion.ConexioDB;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -28,29 +30,28 @@ public class palmacen extends javax.swing.JPanel {
     }
 
     public void configurarTablaAlmacen() {
-        String[] titulos = {"CÓDIGO DE BARRAS", "DESCRIPCIÓN", "CANTIDAD", "ID"};
+        String[] titulos = {"CÓDIGO DE BARRAS", "DESCRIPCIÓN", "UNIDAD", "CANTIDAD", "MULTIPLO", "ID"};
 
         modeloAlmacen = new DefaultTableModel(null, titulos) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // Solo dejamos editar el Código de Barras (0) y la Cantidad (2)
-                return column == 0 || column == 2;
+                return column == 0 || column == 3;
             }
         };
         talmacen_ingreso.setModel(modeloAlmacen);
 
-        // Ocultar la columna ID (índice 3) para procesamiento interno en base de datos
-        talmacen_ingreso.getColumnModel().getColumn(3).setMinWidth(0);
-        talmacen_ingreso.getColumnModel().getColumn(3).setMaxWidth(0);
-        talmacen_ingreso.getColumnModel().getColumn(3).setPreferredWidth(0);
+        // Ocultar MULTIPLO (col 4) e ID (col 5)
+        talmacen_ingreso.getColumnModel().getColumn(4).setMinWidth(0);
+        talmacen_ingreso.getColumnModel().getColumn(4).setMaxWidth(0);
+        talmacen_ingreso.getColumnModel().getColumn(4).setPreferredWidth(0);
+        talmacen_ingreso.getColumnModel().getColumn(5).setMinWidth(0);
+        talmacen_ingreso.getColumnModel().getColumn(5).setMaxWidth(0);
+        talmacen_ingreso.getColumnModel().getColumn(5).setPreferredWidth(0);
 
-        // Listener para buscar el producto automáticamente cuando se digite el código de barras
         modeloAlmacen.addTableModelListener(e -> {
             if (e.getType() == TableModelEvent.UPDATE) {
                 int row = e.getFirstRow();
                 int column = e.getColumn();
-
-                // Si los cambios ocurrieron en la columna 0 ("CÓDIGO DE BARRAS")
                 if (column == 0) {
                     Object cbObj = modeloAlmacen.getValueAt(row, 0);
                     if (cbObj != null && !cbObj.toString().trim().isEmpty()) {
@@ -63,36 +64,85 @@ public class palmacen extends javax.swing.JPanel {
 
     private void inicializarFilaVacia() {
         if (modeloAlmacen != null) {
-            modeloAlmacen.addRow(new Object[]{"", "", "", ""});
+            modeloAlmacen.addRow(new Object[]{"", "", "", "", "", ""});
         }
     }
 
     private void buscarProductoPorCodigo(String codigo, int fila) {
-        String sql = "SELECT Id_producto, descripcion FROM PRODUCTO WHERE codigo_barras = ?";
+        String sql = "SELECT p.Id_producto, "
+                + "(p.descripcion + ' ' + m.nombre_marca) AS desc_com, "
+                + "um.nombre_unidad, pp.multiplo "
+                + "FROM PRODUCTO p "
+                + "INNER JOIN MARCA m ON p.Id_marca = m.Id_marca "
+                + "INNER JOIN PRODUCTO_PRESENTACION pp ON p.Id_producto = pp.Id_producto "
+                + "INNER JOIN UNIDAD_MEDIDA um ON pp.Id_unidad = um.Id_unidad "
+                + "WHERE p.codigo_barras = ? "
+                + "ORDER BY pp.Id_presentacion ASC";
 
         try (Connection con = ConexioDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, codigo);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    int idProd = rs.getInt("Id_producto");
-                    String desc = rs.getString("descripcion");
+            ps.setString(1, codigo.trim());
+            List<Object[]> presentaciones = new ArrayList<>();
 
-                    // Usamos invokeLater para prevenir excepciones de concurrencia e hilos en Swing
-                    java.awt.EventQueue.invokeLater(() -> {
-                        modeloAlmacen.setValueAt(desc, fila, 1);   // Inserta descripción hallada
-                        modeloAlmacen.setValueAt(idProd, fila, 3); // Inserta ID del producto
-                        modeloAlmacen.setValueAt("1", fila, 2);    // Sugiere cantidad base de 1
-                    });
-                } else {
-                    JOptionPane.showMessageDialog(this, "El código de barras '" + codigo + "' no existe en el sistema.", "Producto no encontrado", JOptionPane.WARNING_MESSAGE);
-                    java.awt.EventQueue.invokeLater(() -> {
-                        modeloAlmacen.setValueAt("", fila, 0); // revierte el texto inválido
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    presentaciones.add(new Object[]{
+                        rs.getInt("Id_producto"),
+                        rs.getString("desc_com"),
+                        rs.getString("nombre_unidad"),
+                        rs.getInt("multiplo")
                     });
                 }
             }
+
+            if (presentaciones.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "El código '" + codigo + "' no existe en el sistema.",
+                        "Producto no encontrado", JOptionPane.WARNING_MESSAGE);
+                java.awt.EventQueue.invokeLater(()
+                        -> modeloAlmacen.setValueAt("", fila, 0));
+                return;
+            }
+
+            Object[] presSeleccionada;
+            if (presentaciones.size() == 1) {
+                presSeleccionada = presentaciones.get(0);
+            } else {
+                String[] opciones = new String[presentaciones.size()];
+                for (int i = 0; i < presentaciones.size(); i++) {
+                    Object[] p = presentaciones.get(i);
+                    opciones[i] = String.format("%s (x%d)", p[2], p[3]);
+                }
+                String seleccion = (String) JOptionPane.showInputDialog(
+                        this,
+                        "Este producto tiene varias presentaciones.\nSeleccione la que está ingresando:",
+                        "Seleccionar presentación",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null, opciones, opciones[0]);
+
+                if (seleccion == null) {
+                    java.awt.EventQueue.invokeLater(()
+                            -> modeloAlmacen.setValueAt("", fila, 0));
+                    return;
+                }
+                int indice = java.util.Arrays.asList(opciones).indexOf(seleccion);
+                presSeleccionada = presentaciones.get(indice);
+            }
+
+            final Object[] pres = presSeleccionada;
+            java.awt.EventQueue.invokeLater(() -> {
+                modeloAlmacen.setValueAt(pres[1], fila, 1); // Descripción
+                modeloAlmacen.setValueAt(pres[2], fila, 2); // Unidad
+                modeloAlmacen.setValueAt(1, fila, 3); // Cantidad = 1
+                modeloAlmacen.setValueAt(pres[3], fila, 4); // Multiplo (oculto)
+                modeloAlmacen.setValueAt(pres[0], fila, 5); // Id_producto (oculto)
+            });
+
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error de base de datos al buscar producto: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Error de base de datos: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
@@ -295,8 +345,8 @@ public class palmacen extends javax.swing.JPanel {
             // --- PASO 1: Si es INVENTARIO POR PRODUCTO, borrón y cuenta nueva a 0 de los ítems en lista ---
             if (tipoMovimiento.equalsIgnoreCase("Inventario por Producto")) {
                 for (int i = 0; i < modeloAlmacen.getRowCount(); i++) {
-                    if (modeloAlmacen.getValueAt(i, 3) != null && !modeloAlmacen.getValueAt(i, 3).toString().isEmpty()) {
-                        int idProd = Integer.parseInt(modeloAlmacen.getValueAt(i, 3).toString());
+                    if (modeloAlmacen.getValueAt(i, 5) != null && !modeloAlmacen.getValueAt(i, 5).toString().isEmpty()) {
+                        int idProd = Integer.parseInt(modeloAlmacen.getValueAt(i, 5).toString());
                         psReset.setInt(1, idProd);
                         psReset.addBatch();
                     }
@@ -306,13 +356,17 @@ public class palmacen extends javax.swing.JPanel {
 
             // --- PASO 2: Inyección de stock y generación de Kárdex/Historial ---
             for (int i = 0; i < modeloAlmacen.getRowCount(); i++) {
-                if (modeloAlmacen.getValueAt(i, 3) == null || modeloAlmacen.getValueAt(i, 3).toString().isEmpty()
-                        || modeloAlmacen.getValueAt(i, 2) == null || modeloAlmacen.getValueAt(i, 2).toString().isEmpty()) {
+                if (modeloAlmacen.getValueAt(i, 5) == null || modeloAlmacen.getValueAt(i, 5).toString().isEmpty()
+                        || modeloAlmacen.getValueAt(i, 3) == null || modeloAlmacen.getValueAt(i, 2).toString().isEmpty()) {
                     continue; // Ignora filas que se encuentren incompletas
                 }
 
-                int idProd = Integer.parseInt(modeloAlmacen.getValueAt(i, 3).toString());
-                int cantidad = Integer.parseInt(modeloAlmacen.getValueAt(i, 2).toString());
+                int idProd = Integer.parseInt(modeloAlmacen.getValueAt(i, 5).toString());
+                int cantidad = Integer.parseInt(modeloAlmacen.getValueAt(i, 3).toString());
+                Object multiploObj = modeloAlmacen.getValueAt(i, 4);
+                int multiplo = (multiploObj != null && !multiploObj.toString().isEmpty())
+                        ? Integer.parseInt(multiploObj.toString()) : 1;
+                int cantidadStock = cantidad * multiplo;
 
                 if (cantidad <= 0) {
                     con.rollback(); // Cancela la operación completa ante inconsistencias
@@ -322,14 +376,14 @@ public class palmacen extends javax.swing.JPanel {
 
                 // Parámetros de actualización de Stock
                 psUpdate.setInt(1, idProd);
-                psUpdate.setInt(2, cantidad);
-                psUpdate.setInt(3, cantidad);
+                psUpdate.setInt(2, cantidadStock);
+                psUpdate.setInt(3, cantidadStock);
                 psUpdate.addBatch();
 
                 // Parámetros de Auditoría/Historial
                 psHistorial.setInt(1, idProd);
                 psHistorial.setString(2, tipoMovimiento.toUpperCase());
-                psHistorial.setInt(3, cantidad);
+                psHistorial.setInt(3, cantidadStock);  
                 psHistorial.addBatch();
             }
 
@@ -374,7 +428,7 @@ public class palmacen extends javax.swing.JPanel {
     }//GEN-LAST:event_btnguardarActionPerformed
 
     private void btnagregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnagregarActionPerformed
-        modeloAlmacen.addRow(new Object[]{"", "", "", ""});
+        modeloAlmacen.addRow(new Object[]{"", "", "", "", "", ""});
     }//GEN-LAST:event_btnagregarActionPerformed
 
 

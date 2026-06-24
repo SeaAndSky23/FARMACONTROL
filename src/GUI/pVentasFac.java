@@ -10,9 +10,10 @@ import javax.swing.event.TableModelEvent;
 import java.util.ArrayList;
 import dao.ProductoDAO;
 import dao.VentaDAO;
-import DTO.VentaDTO;
-import dao.DetalleVentaDTO;
+import modelo.VentaDTO;
+import modelo.DetalleVentaDTO;
 import modelo.Sesion;
+import java.util.List;
 
 /**
  *
@@ -41,7 +42,7 @@ public class pVentasFac extends javax.swing.JPanel {
 
     public void configurarTablaVentas() {
         // 2. Definir las columnas de la tabla (incluyendo ID oculto para la BD)
-        String[] columnas = {"Código Barras", "Descripción", "Unidad", "Cantidad", "Precio Unit.", "IGV", "Subtotal", "Id_Prod"};
+        String[] columnas = {"Código Barras", "Descripción", "Unidad", "Cantidad", "Precio Unit.", "IGV", "Subtotal", "Multiplo", "Id_Prod"};
 
         // 3. Sobrescribir DefaultTableModel para controlar la edición de celdas
         modeloTabla = new DefaultTableModel(null, columnas) {
@@ -77,13 +78,17 @@ public class pVentasFac extends javax.swing.JPanel {
         tblVenta.getColumnModel().getColumn(7).setMaxWidth(0);
         tblVenta.getColumnModel().getColumn(7).setPreferredWidth(0);
 
+        tblVenta.getColumnModel().getColumn(8).setMinWidth(0);
+        tblVenta.getColumnModel().getColumn(8).setMaxWidth(0);
+        tblVenta.getColumnModel().getColumn(8).setPreferredWidth(0);
+
         // 6. Optimización para Lectores de Códigos de Barras
         // Hace que la celda guarde el valor inmediatamente al presionar ENTER o cambiar de celda
         tblVenta.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         tblVenta.setSurrendersFocusOnKeystroke(true);
 
         // 7. Agregar una fila inicial vacía para empezar a escanear
-        modeloTabla.addRow(new Object[]{"", "", "", 0, 0.0, 0.0, 0.0, ""});
+        modeloTabla.addRow(new Object[]{"", "", "", 0, 0.0, 0.0, 0.0, 1, ""});
 
         // 8. Agregar el Listener para detectar cuando se digita el código o cambia la cantidad
         agregarListenerTabla();
@@ -102,7 +107,7 @@ public class pVentasFac extends javax.swing.JPanel {
                 int columna = e.getColumn();
                 ProductoDAO prodDAO = new ProductoDAO(); // Tu clase de conexión
 
-                // Rematamos el listener temporalmente para evitar bucles infinitos al editar celdas mediante código
+                // Removemos el listener temporalmente para evitar bucles infinitos al editar celdas mediante código
                 modeloTabla.removeTableModelListener(this);
 
                 try {
@@ -111,43 +116,54 @@ public class pVentasFac extends javax.swing.JPanel {
                         String codigo = (String) modeloTabla.getValueAt(fila, 0);
 
                         if (codigo != null && !codigo.trim().isEmpty()) {
-                            Object[] prod = prodDAO.buscarPorCodigoBarras(codigo);
+                            List<Object[]> presentaciones = prodDAO.listarPresentacionesPorCodigoBarras(codigo.trim());
 
-                            if (prod != null) {
-                                int idProducto = (int) prod[0];
-                                String descripcion = (String) prod[2];
-                                String unidad = (String) prod[3];
-                                double precio = (double) prod[4];
-                                boolean aplicaIgv = (boolean) prod[5];
-                                int cantidad = 1; // Cantidad inicial por defecto
-
-                                // Calcular IGV (Perú 18%) y Subtotal del ítem
-                                double igvPorcentaje = aplicaIgv ? 0.18 : 0.0;
-                                double precioUnitarioBase = precio / (1 + igvPorcentaje);
-                                double igvCalculado = precio - precioUnitarioBase;
-                                double subtotal = cantidad * precio;
-
-                                // Insertar los datos en la fila actual
-                                modeloTabla.setValueAt(descripcion, fila, 1);
-                                modeloTabla.setValueAt(unidad, fila, 2);
-                                modeloTabla.setValueAt(cantidad, fila, 3);
-                                modeloTabla.setValueAt(precio, fila, 4);
-                                modeloTabla.setValueAt(igvCalculado * cantidad, fila, 5);
-                                modeloTabla.setValueAt(subtotal, fila, 6);
-                                modeloTabla.setValueAt(idProducto, fila, 7);
-
-                                if (fila == modeloTabla.getRowCount() - 1) {
-                                    modeloTabla.addRow(new Object[]{"", "", "", 0, 0.0, 0.0, 0.0, ""});
-                                }
-                            } else {
+                            if (presentaciones.isEmpty()) {
                                 javax.swing.JOptionPane.showMessageDialog(null, "El código de barras no existe.");
                                 modeloTabla.setValueAt("", fila, 0); // Limpiar celda errónea
+                            } else {
+                                Object[] presSeleccionada = presentaciones.size() == 1
+                                        ? presentaciones.get(0)
+                                        : seleccionarPresentacion(presentaciones);
+
+                                if (presSeleccionada == null) {
+                                    // El usuario canceló la selección de presentación
+                                    modeloTabla.setValueAt("", fila, 0);
+                                } else {
+                                    int idProducto = (int) presSeleccionada[0];
+                                    String descripcion = (String) presSeleccionada[1];
+                                    String unidad = (String) presSeleccionada[3];
+                                    int multiplo = (int) presSeleccionada[4];
+                                    double precio = (double) presSeleccionada[5];
+                                    boolean aplicaIgv = (boolean) presSeleccionada[6];
+                                    int cantidad = 1;
+
+                                    // Calcular IGV (Perú 18%) y Subtotal del ítem
+                                    double igvPorcentaje = aplicaIgv ? 0.18 : 0.0;
+                                    double precioUnitarioBase = precio / (1 + igvPorcentaje);
+                                    double igvCalculado = precio - precioUnitarioBase;
+                                    double subtotal = cantidad * precio;
+
+                                    // Insertar los datos en la fila actual
+                                    modeloTabla.setValueAt(descripcion, fila, 1);
+                                    modeloTabla.setValueAt(unidad, fila, 2);
+                                    modeloTabla.setValueAt(cantidad, fila, 3);
+                                    modeloTabla.setValueAt(precio, fila, 4);
+                                    modeloTabla.setValueAt(igvCalculado * cantidad, fila, 5);
+                                    modeloTabla.setValueAt(subtotal, fila, 6);
+                                    modeloTabla.setValueAt(multiplo, fila, 7);
+                                    modeloTabla.setValueAt(idProducto, fila, 8);
+
+                                    if (fila == modeloTabla.getRowCount() - 1) {
+                                        modeloTabla.addRow(new Object[]{"", "", "", 0, 0.0, 0.0, 0.0, 1, ""});
+                                    }
+                                }
                             }
                         }
                     } else if (columna == 3) {
                         Integer cantidad = (Integer) modeloTabla.getValueAt(fila, 3);
                         Double precio = (Double) modeloTabla.getValueAt(fila, 4);
-                        Integer idProd = (Integer) modeloTabla.getValueAt(fila, 7);
+                        Integer idProd = (Integer) modeloTabla.getValueAt(fila, 8);
 
                         if (idProd != null && cantidad != null && cantidad > 0) {
                             double subtotal = cantidad * precio;
@@ -174,6 +190,34 @@ public class pVentasFac extends javax.swing.JPanel {
         });
     }
 
+    private Object[] seleccionarPresentacion(List<Object[]> presentaciones) {
+        String[] opciones = new String[presentaciones.size()];
+        for (int i = 0; i < presentaciones.size(); i++) {
+            Object[] p = presentaciones.get(i);
+            String unidad = (String) p[3];
+            int multiplo = (int) p[4];
+            double precio = (double) p[5];
+            opciones[i] = String.format("%s (x%d) - S/ %.2f", unidad, multiplo, precio);
+        }
+
+        String seleccion = (String) javax.swing.JOptionPane.showInputDialog(
+                null,
+                "Este producto tiene varias presentaciones. Seleccione una:",
+                "Seleccionar presentación",
+                javax.swing.JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]
+        );
+
+        if (seleccion == null) {
+            return null;
+        }
+
+        int indice = java.util.Arrays.asList(opciones).indexOf(seleccion);
+        return presentaciones.get(indice);
+    }
+
     private void calcularTotalesPanel() {
         double totalGeneral = 0.0;
         double totalIgv = 0.0;
@@ -196,7 +240,7 @@ public class pVentasFac extends javax.swing.JPanel {
         txtIgvTotal.setText(String.format("%.2f", totalIgv));
         txtTotalVenta.setText(String.format("%.2f", totalGeneral));
     }
-    
+
     //TIPO COMPROVANTE DE VENTA
     private void configurarEventoTipoComprobante() {
         cboMetodoPago1.addActionListener(new java.awt.event.ActionListener() {
@@ -205,21 +249,21 @@ public class pVentasFac extends javax.swing.JPanel {
                 actualizarSiguienteNumeroEnPantalla();
             }
         });
-    } 
-    
+    }
+
     private void actualizarSiguienteNumeroEnPantalla() {
         VentaDAO ventaDAO = new VentaDAO();
         String tipoComprobante = obtenerTipoComprobanteSeleccionado();
         String siguienteNumero = ventaDAO.generarSiguienteNumeroComprobante(tipoComprobante);
         txtNumeroBoleta.setText(siguienteNumero);
     }
-    
+
     private String obtenerTipoComprobanteSeleccionado() {
-    if (cboMetodoPago1.getSelectedItem() == null) {
-        return "BOLETA";
+        if (cboMetodoPago1.getSelectedItem() == null) {
+            return "BOLETA";
+        }
+        return cboMetodoPago1.getSelectedItem().toString().trim();
     }
-    return cboMetodoPago1.getSelectedItem().toString().trim();
-}
 
     //CAJERO
     private void mostrarCajeroLogueado() {
@@ -609,7 +653,7 @@ public class pVentasFac extends javax.swing.JPanel {
         }
 
         // 2. Validar que la tabla tenga al menos un producto válido
-        if (modeloTabla.getRowCount() <= 1 && modeloTabla.getValueAt(0, 7).toString().isEmpty()) {
+        if (modeloTabla.getRowCount() <= 1 && modeloTabla.getValueAt(0, 8).toString().isEmpty()) {
             javax.swing.JOptionPane.showMessageDialog(this, "La tabla de ventas está vacía.", "Validación", javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -641,17 +685,19 @@ public class pVentasFac extends javax.swing.JPanel {
             ArrayList<DetalleVentaDTO> listaDetalles = new ArrayList<>();
 
             for (int i = 0; i < tblVenta.getRowCount(); i++) {
-                Object idProdObj = tblVenta.getValueAt(i, 7);
+                Object idProdObj = tblVenta.getValueAt(i, 8);
                 if (idProdObj != null && !idProdObj.toString().trim().isEmpty()) {
 
                     int idProducto = Integer.parseInt(idProdObj.toString());
                     int cantidad = Integer.parseInt(tblVenta.getValueAt(i, 3).toString());
                     double precioUnit = Double.parseDouble(tblVenta.getValueAt(i, 4).toString());
+                    int multiplo = Integer.parseInt(tblVenta.getValueAt(i, 7).toString());
 
                     DetalleVentaDTO detalle = new DetalleVentaDTO();
                     detalle.setIdProducto(idProducto);
                     detalle.setCantidad(cantidad);
                     detalle.setPrecioUnitario(precioUnit);
+                    detalle.setCantidadStock(cantidad * multiplo); 
                     listaDetalles.add(detalle);
                 }
             }

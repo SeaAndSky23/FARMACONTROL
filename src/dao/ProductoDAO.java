@@ -6,8 +6,8 @@ package dao;
 
 import conexion.ConexioDB;
 import java.sql.Connection;
-import DTO.ProductoDTO;
-import DTO.PresentacionDTO;
+import modelo.ProductoDTO;
+import modelo.PresentacionDTO;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -224,5 +224,40 @@ public class ProductoDAO {
                 System.out.println("Error al cerrar componentes: " + e.getMessage());
             }
         }
+    }
+
+    //MOSTRAR TODAS LAS PRESENTACIONES POR PRODUCTO
+    public List<Object[]> listarPresentacionesPorCodigoBarras(String codigo) {
+        List<Object[]> lista = new ArrayList<>();
+        String sql = "SELECT p.Id_producto, "
+                + "(p.descripcion + ' ' + m.nombre_marca) AS desc_com, "
+                + "pp.Id_presentacion, um.nombre_unidad, pp.multiplo, "
+                + "pp.precio_venta, pp.aplica_igv "
+                + "FROM PRODUCTO p "
+                + "INNER JOIN MARCA m ON p.Id_marca = m.Id_marca "
+                + "INNER JOIN PRODUCTO_PRESENTACION pp ON p.Id_producto = pp.Id_producto "
+                + "INNER JOIN UNIDAD_MEDIDA um ON pp.Id_unidad = um.Id_unidad "
+                + "WHERE p.codigo_barras = ? "
+                + "ORDER BY pp.Id_presentacion ASC";
+
+        try {
+            PreparedStatement pst = cn.prepareStatement(sql);
+            pst.setString(1, codigo);
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                Object[] fila = new Object[7];
+                fila[0] = rs.getInt("Id_producto");
+                fila[1] = rs.getString("desc_com");
+                fila[2] = rs.getInt("Id_presentacion");
+                fila[3] = rs.getString("nombre_unidad");
+                fila[4] = rs.getInt("multiplo");
+                fila[5] = rs.getDouble("precio_venta");
+                fila[6] = rs.getBoolean("aplica_igv");
+                lista.add(fila);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al listar presentaciones: " + e.getMessage());
+        }
+        return lista;
     }
 }

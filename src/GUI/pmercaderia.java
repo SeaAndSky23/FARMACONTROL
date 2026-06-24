@@ -12,9 +12,9 @@ import conexion.ConexioDB;
 import java.awt.Frame;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
-import DTO.PresentacionDTO;
+import modelo.PresentacionDTO;
 import dao.ProductoDAO;
-import DTO.ProductoDTO;
+import modelo.ProductoDTO;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
@@ -662,6 +662,15 @@ public class pmercaderia extends javax.swing.JPanel {
                         "Complete al menos una presentación válida.",
                         "Validación", javax.swing.JOptionPane.WARNING_MESSAGE);
                 return;
+            }
+
+            for (PresentacionDTO pres : presentaciones) {
+                if (pres.getPrecioVenta() <= 0) {
+                    JOptionPane.showMessageDialog(this,
+                            "El precio de venta no puede ser 0 ni negativo.",
+                            "Precio inválido", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
             }
 
             // 3. Guardar todo en una sola transacción
