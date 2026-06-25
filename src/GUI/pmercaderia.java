@@ -30,6 +30,8 @@ import javax.swing.JLabel;
 public class pmercaderia extends javax.swing.JPanel {
 
     private DefaultTableModel modeloPresentaciones;
+    private int idProductoEnEdicion = 0;   // 0 = modo CREAR, >0 = modo EDITAR
+    private javax.swing.JButton btnEditar;  // se declara aquí, se crea en initComponentsExtra()
 
     /**
      * Creates new form pmercaderia
@@ -272,6 +274,88 @@ public class pmercaderia extends javax.swing.JPanel {
         }
     }
 
+    private void cargarProductoParaEdicion(int idProducto) {
+        ProductoDAO dao = new ProductoDAO();
+
+        // --- Cabecera ---
+        Object[] cab = dao.cargarCabeceraPorId(idProducto);
+        if (cab == null) {
+            JOptionPane.showMessageDialog(this, "No se encontró el producto.");
+            return;
+        }
+
+        idProductoEnEdicion = idProducto;
+
+        txtCodigoBarras.setText((String) cab[1]);
+        txtDescripcion.setText((String) cab[2]);
+
+        seleccionarCombo(cbMarca, (int) cab[3]);
+        seleccionarCombo(cbPactivo, (int) cab[4]);
+        seleccionarCombo(cbConcentracion, (int) cab[5]);
+        seleccionarCombo(cbFfarma, (int) cab[6]);
+        seleccionarCombo(cbCondventa, (int) cab[8]);
+
+        // Fecha de vencimiento
+        txtFechaVencimiento.setValue((java.util.Date) cab[7]);
+
+        // --- Presentaciones ---
+        modeloPresentaciones.setRowCount(0);
+        List<Object[]> pres = dao.cargarPresentacionesPorId(idProducto);
+        for (Object[] p : pres) {
+            // Construir ObjetoCombo para la columna Medida
+            ObjetoCombo unidad = new ObjetoCombo(
+                    (int) p[1], // Id_unidad
+                    (String) p[2], // nombre_unidad
+                    (int) p[3] // multiplo_defecto
+            );
+            modeloPresentaciones.addRow(new Object[]{
+                unidad,
+                (int) p[4], // multiplo
+                (boolean) p[5], // aplica_igv
+                (double) p[6], // precio_venta
+                (double) p[7] // precio_compra
+            });
+        }
+
+        // Poner formulario en modo SOLO LECTURA
+        setFormularioEditable(false);
+        btneditar.setVisible(true);
+        btnguardar.setVisible(false);
+    }
+
+    private void setFormularioEditable(boolean editable) {
+        txtCodigoBarras.setEditable(editable);
+        txtDescripcion.setEditable(editable);
+        cbMarca.setEnabled(editable);
+        cbPactivo.setEnabled(editable);
+        cbConcentracion.setEnabled(editable);
+        cbFfarma.setEnabled(editable);
+        cbCondventa.setEnabled(editable);
+        txtFechaVencimiento.setEnabled(editable);
+
+        // Botones "+" de maestros
+        btnagmarca.setEnabled(editable);
+        btnpactivo.setEnabled(editable);
+        btnconcentracion.setEnabled(editable);
+        btnfarma.setEnabled(editable);
+        btncventa.setEnabled(editable);
+
+        // Tabla de presentaciones
+        tpresentacion.setEnabled(editable);
+        btnagre.setEnabled(editable);
+        btnelimi.setEnabled(editable);
+    }
+
+    private void seleccionarCombo(javax.swing.JComboBox<?> combo, int id) {
+        for (int i = 0; i < combo.getItemCount(); i++) {
+            ObjetoCombo item = (ObjetoCombo) combo.getItemAt(i);
+            if (item.getId() == id) {
+                combo.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -313,6 +397,7 @@ public class pmercaderia extends javax.swing.JPanel {
         btnagre = new javax.swing.JButton();
         btnelimi = new javax.swing.JButton();
         btnguardar = new javax.swing.JButton();
+        btneditar = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -527,6 +612,10 @@ public class pmercaderia extends javax.swing.JPanel {
         btnguardar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnguardar.addActionListener(this::btnguardarActionPerformed);
 
+        btneditar.setText("EDITAR");
+        btneditar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btneditar.addActionListener(this::btneditarActionPerformed);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -537,17 +626,24 @@ public class pmercaderia extends javax.swing.JPanel {
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 109, Short.MAX_VALUE)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnguardar)
-                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnguardar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btneditar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(71, 71, 71))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addGap(28, 28, 28)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(28, 28, 28)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btneditar, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)))
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
@@ -627,7 +723,6 @@ public class pmercaderia extends javax.swing.JPanel {
             for (int i = 0; i < modeloPresentaciones.getRowCount(); i++) {
                 Object valorMedida = modeloPresentaciones.getValueAt(i, 0);
 
-                // saltar filas vacías o sin unidad seleccionada
                 if (valorMedida == null || !(valorMedida instanceof ObjetoCombo)) {
                     continue;
                 }
@@ -673,20 +768,33 @@ public class pmercaderia extends javax.swing.JPanel {
                 }
             }
 
-            // 3. Guardar todo en una sola transacción
+            // 3. Guardar: CREAR o ACTUALIZAR según el modo
             ProductoDAO dao = new ProductoDAO();
-            boolean exito = dao.guardarProductoConPresentaciones(producto, presentaciones);
+            boolean exito;
+
+            if (idProductoEnEdicion > 0) {
+                producto.setIdProducto(idProductoEnEdicion);
+                exito = dao.actualizarProductoConPresentaciones(producto, presentaciones);
+            } else {
+                exito = dao.guardarProductoConPresentaciones(producto, presentaciones);
+            }
 
             if (exito) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Producto registrado con éxito.");
+                javax.swing.JOptionPane.showMessageDialog(this,
+                        idProductoEnEdicion > 0 ? "Producto actualizado con éxito." : "Producto registrado con éxito.");
+                idProductoEnEdicion = 0;
+                btneditar.setVisible(false);
+                btnguardar.setVisible(true);
+                setFormularioEditable(true);
                 limpiarFormulario();
             } else {
-                javax.swing.JOptionPane.showMessageDialog(this, "Error al registrar el producto.",
+                javax.swing.JOptionPane.showMessageDialog(this, "Error al guardar el producto.",
                         "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
             }
 
         } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Error de datos: " + e.getMessage(),
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Error de datos: " + e.getMessage(),
                     "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnguardarActionPerformed
@@ -702,10 +810,8 @@ public class pmercaderia extends javax.swing.JPanel {
     private void limpiarFormulario() {
         txtDescripcion.setText("");
         txtCodigoBarras.setText("");
-
+        idProductoEnEdicion = 0;
         limpiarTablaPresentaciones();
-
-        // Al poner el índice en 0, regresarán a mostrar el campo vacío automáticamente
         if (cbMarca.getItemCount() > 0) {
             cbMarca.setSelectedIndex(0);
         }
@@ -745,6 +851,13 @@ public class pmercaderia extends javax.swing.JPanel {
     private void btnmostrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnmostrarActionPerformed
         JDproducto dialogo = new JDproducto((Frame) SwingUtilities.getWindowAncestor(this), true);
         dialogo.setVisible(true);
+
+        Integer idSeleccionado = dialogo.getIdProductoSeleccionado();
+        if (idSeleccionado == null) {
+            return; // usuario cerró sin elegir
+        }
+
+        cargarProductoParaEdicion(idSeleccionado);
     }//GEN-LAST:event_btnmostrarActionPerformed
 
     private void btnagreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnagreActionPerformed
@@ -758,11 +871,18 @@ public class pmercaderia extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnelimiActionPerformed
 
+    private void btneditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btneditarActionPerformed
+        setFormularioEditable(true);
+        btneditar.setVisible(false);
+        btnguardar.setVisible(true);
+    }//GEN-LAST:event_btneditarActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnagmarca;
     private javax.swing.JButton btnagre;
     private javax.swing.JButton btnconcentracion;
     private javax.swing.JButton btncventa;
+    private javax.swing.JButton btneditar;
     private javax.swing.JButton btnelimi;
     private javax.swing.JButton btnfarma;
     private javax.swing.JButton btnguardar;

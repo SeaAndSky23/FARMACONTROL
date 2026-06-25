@@ -6,10 +6,6 @@ package modelo;
 
 import java.util.Date;
 
-/**
- *
- * @author USUARIO
- */
 public class ProductoDTO {
 
     private int idProducto;

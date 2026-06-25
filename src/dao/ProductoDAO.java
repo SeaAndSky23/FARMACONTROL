@@ -237,4 +237,136 @@ public class ProductoDAO {
         }
         return lista;
     }
+    
+//PARA EDITAR PRODUCTOS
+    public Object[] cargarCabeceraPorId(int idProducto) {
+        Object[] datos = null;
+        String sql = "SELECT p.Id_producto, p.codigo_barras, p.descripcion, "
+                + "p.Id_marca, p.Id_principio, p.Id_concentracion, "
+                + "p.Id_forma, p.fecha_vencimiento, p.Id_condicion "
+                + "FROM PRODUCTO p WHERE p.Id_producto = ?";
+        try (PreparedStatement pst = cn.prepareStatement(sql)) {
+            pst.setInt(1, idProducto);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    datos = new Object[9];
+                    datos[0] = rs.getInt("Id_producto");
+                    datos[1] = rs.getString("codigo_barras");
+                    datos[2] = rs.getString("descripcion");
+                    datos[3] = rs.getInt("Id_marca");
+                    datos[4] = rs.getInt("Id_principio");
+                    datos[5] = rs.getInt("Id_concentracion");
+                    datos[6] = rs.getInt("Id_forma");
+                    datos[7] = rs.getDate("fecha_vencimiento");
+                    datos[8] = rs.getInt("Id_condicion");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return datos;
+    }
+
+    public List<Object[]> cargarPresentacionesPorId(int idProducto) {
+        List<Object[]> lista = new ArrayList<>();
+        String sql = "SELECT pp.Id_presentacion, pp.Id_unidad, um.nombre_unidad, "
+                + "um.multiplo_defecto, pp.multiplo, pp.aplica_igv, "
+                + "pp.precio_venta, pp.precio_compra "
+                + "FROM PRODUCTO_PRESENTACION pp "
+                + "INNER JOIN UNIDAD_MEDIDA um ON pp.Id_unidad = um.Id_unidad "
+                + "WHERE pp.Id_producto = ? ORDER BY pp.Id_presentacion ASC";
+        try (PreparedStatement pst = cn.prepareStatement(sql)) {
+            pst.setInt(1, idProducto);
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    Object[] fila = new Object[8];
+                    fila[0] = rs.getInt("Id_presentacion");
+                    fila[1] = rs.getInt("Id_unidad");
+                    fila[2] = rs.getString("nombre_unidad");
+                    fila[3] = rs.getInt("multiplo_defecto");
+                    fila[4] = rs.getInt("multiplo");
+                    fila[5] = rs.getBoolean("aplica_igv");
+                    fila[6] = rs.getDouble("precio_venta");
+                    fila[7] = rs.getDouble("precio_compra");
+                    lista.add(fila);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    public boolean actualizarProductoConPresentaciones(ProductoDTO producto, List<PresentacionDTO> presentaciones) {
+        Connection con = null;
+        try {
+            con = ConexioDB.getConexion();
+            con.setAutoCommit(false);
+
+            // 1. Actualizar cabecera PRODUCTO
+            String sqlProd = "UPDATE PRODUCTO SET "
+                    + "codigo_barras=?, descripcion=?, Id_marca=?, Id_principio=?, "
+                    + "Id_concentracion=?, Id_forma=?, fecha_vencimiento=?, Id_condicion=? "
+                    + "WHERE Id_producto=?";
+            try (PreparedStatement pst = con.prepareStatement(sqlProd)) {
+                pst.setString(1, producto.getCodigoBarras());
+                pst.setString(2, producto.getDescripcion());
+                pst.setInt(3, producto.getIdMarca());
+                pst.setInt(4, producto.getIdPrincipio());
+                pst.setInt(5, producto.getIdConcentracion());
+                pst.setInt(6, producto.getIdForma());
+                pst.setDate(7, new java.sql.Date(producto.getFechaVencimiento().getTime()));
+                pst.setInt(8, producto.getIdCondicion());
+                pst.setInt(9, producto.getIdProducto()); // necesitas este getter
+                pst.executeUpdate();
+            }
+
+            // 2. Eliminar presentaciones anteriores
+            String sqlDel = "DELETE FROM PRODUCTO_PRESENTACION WHERE Id_producto=?";
+            try (PreparedStatement pst = con.prepareStatement(sqlDel)) {
+                pst.setInt(1, producto.getIdProducto());
+                pst.executeUpdate();
+            }
+
+            // 3. Reinsertar presentaciones
+            String sqlPres = "INSERT INTO PRODUCTO_PRESENTACION "
+                    + "(Id_producto, Id_unidad, multiplo, aplica_igv, precio_venta, precio_compra) "
+                    + "VALUES (?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement pst = con.prepareStatement(sqlPres)) {
+                for (PresentacionDTO pres : presentaciones) {
+                    pst.setInt(1, producto.getIdProducto());
+                    pst.setInt(2, pres.getIdUnidad());
+                    pst.setInt(3, pres.getMultiplo());
+                    pst.setBoolean(4, pres.isAplicaIgv());
+                    pst.setDouble(5, pres.getPrecioVenta());
+                    pst.setDouble(6, pres.getPrecioCompra());
+                    pst.addBatch();
+                }
+                pst.executeBatch();
+            }
+
+            con.commit();
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("--- ERROR AL ACTUALIZAR PRODUCTO ---");
+            e.printStackTrace();
+            if (con != null) {
+                try {
+                    con.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            return false;
+        } finally {
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }

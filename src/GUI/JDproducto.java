@@ -18,6 +18,7 @@ public class JDproducto extends javax.swing.JDialog {
     private final ProductoDAO productoDAO = new ProductoDAO();
     private Object[] productoSeleccionado = null;
     private String codigoBarrasSeleccionado = null;
+    private Integer idProductoSeleccionado = null;
 
     public String getCodigoBarrasSeleccionado() {
         return codigoBarrasSeleccionado;
@@ -25,6 +26,10 @@ public class JDproducto extends javax.swing.JDialog {
 
     public Object[] getProductoSeleccionado() {
         return productoSeleccionado;
+    }
+
+    public Integer getIdProductoSeleccionado() {
+        return idProductoSeleccionado;
     }
 
     private final String[] columnas = {
@@ -58,7 +63,7 @@ public class JDproducto extends javax.swing.JDialog {
                 if (evt.getClickCount() == 2) {
                     int fila = tproducto.getSelectedRow();
                     if (fila >= 0) {
-                        // columna 1 = codigo_barras
+                        idProductoSeleccionado = (Integer) tproducto.getValueAt(fila, 0); // columna 0 = Id_producto
                         codigoBarrasSeleccionado = tproducto.getValueAt(fila, 1).toString();
                         dispose();
                     }
@@ -178,13 +183,13 @@ public class JDproducto extends javax.swing.JDialog {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(49, 49, 49)
+                .addGap(57, 57, 57)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtbuscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnbuscar)
                     .addComponent(btnMostrarTodos))
-                .addGap(26, 26, 26)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
+                .addGap(34, 34, 34)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 685, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
