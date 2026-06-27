@@ -6,10 +6,6 @@ package modelo;
 
 import java.sql.Timestamp;
 
-/**
- *
- * @author USUARIO
- */
 public class Caja {
 
     private int idCaja;

@@ -23,8 +23,6 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     pkardexinv pkardexinv = new pkardexinv();
     palmacen palmacen = new palmacen();
     pVentasFac pventas = new pVentasFac();
-    pcierre panelcierre = new pcierre();
-    papertura panelapertura = new papertura();
     pmercaderia panelmercaderia = new pmercaderia();
     proles panelusuarios = new proles();
     ptrabajadores paneltrabajadores = new ptrabajadores();
@@ -178,6 +176,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     }//GEN-LAST:event_ming_productoActionPerformed
 
     private void mc_aperturaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mc_aperturaActionPerformed
+        papertura panelapertura = new papertura();
         pinicioadmin.add(panelapertura, "aperturar caja");
         vista.show(pinicioadmin, "aperturar caja");
         SwingUtilities.updateComponentTreeUI(this);
@@ -185,6 +184,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     }//GEN-LAST:event_mc_aperturaActionPerformed
 
     private void mc_cierreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mc_cierreActionPerformed
+        pcierre panelcierre = new pcierre();
         pinicioadmin.add(panelcierre, "cierre caja");
         vista.show(pinicioadmin, "cierre caja");
         SwingUtilities.updateComponentTreeUI(this);
