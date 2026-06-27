@@ -9,8 +9,10 @@ import java.sql.*;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
 import conexion.ConexioDB;
+import java.awt.Frame;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -275,7 +277,7 @@ public class palmacen extends javax.swing.JPanel {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(48, 48, 48)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(39, Short.MAX_VALUE))
+                .addContainerGap(58, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -291,9 +293,7 @@ public class palmacen extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 887, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 906, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -337,12 +337,12 @@ public class palmacen extends javax.swing.JPanel {
             String sqlReset = "UPDATE ALMACEN_STOCK SET stock_actual = 0 WHERE Id_producto = ?";
 
             String sqlUpdate = "MERGE INTO ALMACEN_STOCK AS Destino "
-            + "USING (SELECT ? AS Id_producto) AS Origen "
-            + "ON (Destino.Id_producto = Origen.Id_producto) "
-            + "WHEN MATCHED THEN "
-            + "    UPDATE SET stock_actual = Destino.stock_actual + ? "
-            + "WHEN NOT MATCHED THEN "
-            + "    INSERT (Id_producto, stock_actual) VALUES (Origen.Id_producto, ?);";
+                    + "USING (SELECT ? AS Id_producto) AS Origen "
+                    + "ON (Destino.Id_producto = Origen.Id_producto) "
+                    + "WHEN MATCHED THEN "
+                    + "    UPDATE SET stock_actual = Destino.stock_actual + ? "
+                    + "WHEN NOT MATCHED THEN "
+                    + "    INSERT (Id_producto, stock_actual) VALUES (Origen.Id_producto, ?);";
 
             String sqlHistorial = "INSERT INTO HISTORIAL_INVENTARIO (Id_producto, tipo_movimiento, cantidad, fecha_movimiento) VALUES (?, ?, ?, GETDATE())";
 
@@ -365,7 +365,7 @@ public class palmacen extends javax.swing.JPanel {
             // --- PASO 2: Inyección de stock y generación de Kárdex/Historial ---
             for (int i = 0; i < modeloAlmacen.getRowCount(); i++) {
                 if (modeloAlmacen.getValueAt(i, 5) == null || modeloAlmacen.getValueAt(i, 5).toString().isEmpty()
-                    || modeloAlmacen.getValueAt(i, 3) == null || modeloAlmacen.getValueAt(i, 2).toString().isEmpty()) {
+                        || modeloAlmacen.getValueAt(i, 3) == null || modeloAlmacen.getValueAt(i, 2).toString().isEmpty()) {
                     continue; // Ignora filas que se encuentren incompletas
                 }
 
@@ -373,7 +373,7 @@ public class palmacen extends javax.swing.JPanel {
                 int cantidad = Integer.parseInt(modeloAlmacen.getValueAt(i, 3).toString());
                 Object multiploObj = modeloAlmacen.getValueAt(i, 4);
                 int multiplo = (multiploObj != null && !multiploObj.toString().isEmpty())
-                ? Integer.parseInt(multiploObj.toString()) : 1;
+                        ? Integer.parseInt(multiploObj.toString()) : 1;
                 int cantidadStock = cantidad * multiplo;
 
                 if (cantidad <= 0) {
@@ -440,7 +440,14 @@ public class palmacen extends javax.swing.JPanel {
     }//GEN-LAST:event_btnagregarActionPerformed
 
     private void btnmostrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnmostrarActionPerformed
-       
+        // 1. Abrir el diálogo
+        JDproducto dialog = new JDproducto(
+                (java.awt.Frame) SwingUtilities.getWindowAncestor(this), true);
+        dialog.setVisible(true);
+        String codigo = dialog.getCodigoBarrasSeleccionado();
+        if (codigo == null) {
+            return;
+        }
     }//GEN-LAST:event_btnmostrarActionPerformed
 
 

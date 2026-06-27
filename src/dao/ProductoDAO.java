@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import modelo.ObjetoCombo;
 
 /**
  *
@@ -237,7 +238,7 @@ public class ProductoDAO {
         }
         return lista;
     }
-    
+
 //PARA EDITAR PRODUCTOS
     public Object[] cargarCabeceraPorId(int idProducto) {
         Object[] datos = null;
@@ -368,5 +369,45 @@ public class ProductoDAO {
                 }
             }
         }
+    }
+
+    public List<ObjetoCombo> listarUnidadesMedida() {
+        List<ObjetoCombo> lista = new ArrayList<>();
+        String sql = "SELECT Id_unidad, nombre_unidad, multiplo_defecto "
+                + "FROM UNIDAD_MEDIDA ORDER BY nombre_unidad ASC";
+
+        try (PreparedStatement pst = cn.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
+
+            while (rs.next()) {
+                lista.add(new ObjetoCombo(
+                        rs.getInt("Id_unidad"),
+                        rs.getString("nombre_unidad"),
+                        rs.getInt("multiplo_defecto")
+                ));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    public int insertarUnidadMedida(String nombre, int multiploDefecto) {
+        String sql = "INSERT INTO UNIDAD_MEDIDA (nombre_unidad, multiplo_defecto) VALUES (?, ?)";
+        try (Connection con = ConexioDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, nombre);
+            ps.setInt(2, multiploDefecto);
+            ps.executeUpdate();
+
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al insertar unidad de medida: " + e.getMessage());
+        }
+        return -1;
     }
 }

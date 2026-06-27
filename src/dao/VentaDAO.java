@@ -9,6 +9,7 @@ import modelo.VentaDTO;
 import conexion.ConexioDB;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -203,5 +204,42 @@ public class VentaDAO {
             default:
                 return "";
         }
+    }
+
+    // LISTAR TODAS LAS VENTAS PARA EL DIALOGO
+    public List<Object[]> listarTodasLasVentas() {
+        List<Object[]> lista = new ArrayList<>();
+        String sql = "SELECT v.Id_venta, v.Numero_comprobante, "
+                + "tc.nombre_tipo, "
+                + "ISNULL(c.nombre_completo, 'SIN CLIENTE') AS cliente, "
+                + "mp.nombre_metodo, "
+                + "u.Nombre_usuario, "
+                + "v.Fecha_venta, "
+                + "v.Total "
+                + "FROM VENTA v "
+                + "INNER JOIN TIPO_COMPROBANTE tc ON v.Id_tipo_comprobante = tc.Id_tipo_comprobante "
+                + "INNER JOIN METODO_PAGO mp      ON v.Id_metodo_pago      = mp.Id_metodo_pago "
+                + "INNER JOIN USUARIOS u          ON v.Id_usuario          = u.Id_usuario "
+                + "LEFT  JOIN CLIENTE c           ON v.id_cliente          = c.id_cliente "
+                + "ORDER BY v.Fecha_venta DESC";
+
+        try (Connection cn = ConexioDB.getConexion(); PreparedStatement pst = cn.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
+
+            while (rs.next()) {
+                Object[] fila = new Object[8];
+                fila[0] = rs.getInt("Id_venta");
+                fila[1] = rs.getString("Numero_comprobante");
+                fila[2] = rs.getString("nombre_tipo");
+                fila[3] = rs.getString("cliente");
+                fila[4] = rs.getString("nombre_metodo");
+                fila[5] = rs.getString("Nombre_usuario");
+                fila[6] = rs.getTimestamp("Fecha_venta");
+                fila[7] = rs.getDouble("Total");
+                lista.add(fila);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al listar ventas: " + e.getMessage());
+        }
+        return lista;
     }
 }
