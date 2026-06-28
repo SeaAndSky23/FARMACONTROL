@@ -128,16 +128,16 @@ public class CajaDAO {
             return false;
         }
     }
-    // En CajaDAO — método nuevo para guardar resumen al cerrar
 
+    // método guardar resumen al cerrar
     public boolean guardarResumenCierre(int idCaja, double totalEfectivo,
-            double totalBilletera, double totalVentas,
-            double montoApertura, double efectivoFisico) {
+            double totalBilletera, double totalVentas, double montoApertura,
+            double efectivoFisico, double montoContado, double diferencia) {
 
         String sql = "INSERT INTO RESUMEN_CIERRE_CAJA "
                 + "(Id_caja, total_efectivo, total_billetera, total_ventas, "
-                + "monto_apertura, efectivo_fisico) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+                + "monto_apertura, efectivo_fisico, monto_contado, diferencia) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection cn = ConexioDB.getConexion(); PreparedStatement pst = cn.prepareStatement(sql)) {
             pst.setInt(1, idCaja);
             pst.setDouble(2, totalEfectivo);
@@ -145,6 +145,8 @@ public class CajaDAO {
             pst.setDouble(4, totalVentas);
             pst.setDouble(5, montoApertura);
             pst.setDouble(6, efectivoFisico);
+            pst.setDouble(7, montoContado);
+            pst.setDouble(8, diferencia);
             return pst.executeUpdate() > 0;
         } catch (SQLException e) {
             System.out.println("Error al guardar resumen de cierre: " + e.getMessage());
