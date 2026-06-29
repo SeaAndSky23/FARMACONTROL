@@ -23,8 +23,6 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     pkardexinv pkardexinv = new pkardexinv();
     palmacen palmacen = new palmacen();
     pVentasFac pventas = new pVentasFac();
-    pcierre panelcierre = new pcierre();
-    papertura panelapertura = new papertura();
     pmercaderia panelmercaderia = new pmercaderia();
     proles panelusuarios = new proles();
     ptrabajadores paneltrabajadores = new ptrabajadores();
@@ -47,6 +45,16 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         ImageIcon icono_formulario = new ImageIcon(url);
         setIconImage(icono_formulario.getImage());
     }
+    
+    private ImageIcon cargarIcono(String ruta) {
+    URL url = getClass().getResource(ruta);
+    if (url != null) {
+        return new ImageIcon(url);
+    } else {
+        System.err.println("Imagen no encontrada: " + ruta);
+        return new ImageIcon(); // Icono vacío como fallback
+    }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -63,16 +71,21 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         cusuarios = new javax.swing.JMenu();
         mtrabajadores = new javax.swing.JMenuItem();
         musuarios = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
         cmercaderia = new javax.swing.JMenu();
         ming_producto = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
         calmacen = new javax.swing.JMenu();
         ming_almacen = new javax.swing.JMenuItem();
         mkardex = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
         cventas = new javax.swing.JMenu();
         mreg_venta = new javax.swing.JMenuItem();
+        jMenu4 = new javax.swing.JMenu();
         ccaja = new javax.swing.JMenu();
         mc_apertura = new javax.swing.JMenuItem();
         mc_cierre = new javax.swing.JMenuItem();
+        jMenu5 = new javax.swing.JMenu();
         creportes = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -81,62 +94,129 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         pinicioadmin.setBackground(new java.awt.Color(255, 255, 255));
         pinicioadmin.setLayout(new java.awt.CardLayout());
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/8072883 (1).png"))); // NOI18N
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/logo.png"))); // NOI18N
         pinicioadmin.add(jLabel1, "card2");
 
-        cusuarios.setText("SEGURIDAD");
+        jMenuBar1.setBorder(null);
+        jMenuBar1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jMenuBar1.setFont(new java.awt.Font("Cambria Math", 1, 18)); // NOI18N
+        jMenuBar1.setOpaque(true);
 
+        cusuarios.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/seguridad.png"))); // NOI18N
+        cusuarios.setText("SEGURIDAD");
+        cusuarios.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        cusuarios.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+
+        mtrabajadores.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        mtrabajadores.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/trabajador.png"))); // NOI18N
         mtrabajadores.setText("TRABAJADORES");
+        mtrabajadores.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         mtrabajadores.addActionListener(this::mtrabajadoresActionPerformed);
         cusuarios.add(mtrabajadores);
 
+        musuarios.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        musuarios.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/usuario.png"))); // NOI18N
         musuarios.setText("USUARIOS");
+        musuarios.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         musuarios.addActionListener(this::musuariosActionPerformed);
         cusuarios.add(musuarios);
 
         jMenuBar1.add(cusuarios);
 
-        cmercaderia.setText("MERCADERIA");
+        jMenu1.setEnabled(false);
+        jMenu1.setPreferredSize(new java.awt.Dimension(16, 8));
+        jMenuBar1.add(jMenu1);
 
+        cmercaderia.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/mercaderia.png"))); // NOI18N
+        cmercaderia.setText("MERCADERIA");
+        cmercaderia.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        cmercaderia.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+
+        ming_producto.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        ming_producto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/crearprod.png"))); // NOI18N
         ming_producto.setText("CREAR PRODUCTO");
+        ming_producto.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         ming_producto.addActionListener(this::ming_productoActionPerformed);
         cmercaderia.add(ming_producto);
 
         jMenuBar1.add(cmercaderia);
 
-        calmacen.setText("ALMACEN");
+        jMenu2.setEnabled(false);
+        jMenu2.setPreferredSize(new java.awt.Dimension(16, 10));
+        jMenuBar1.add(jMenu2);
 
+        calmacen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/almacen.png"))); // NOI18N
+        calmacen.setText("ALMACEN");
+        calmacen.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        calmacen.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+
+        ming_almacen.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        ming_almacen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/ingalmacen.png"))); // NOI18N
         ming_almacen.setText("INGRESO ALMACEN");
+        ming_almacen.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         ming_almacen.addActionListener(this::ming_almacenActionPerformed);
         calmacen.add(ming_almacen);
 
+        mkardex.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        mkardex.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/kardex.png"))); // NOI18N
         mkardex.setText("KARDEX");
+        mkardex.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         mkardex.addActionListener(this::mkardexActionPerformed);
         calmacen.add(mkardex);
 
         jMenuBar1.add(calmacen);
 
-        cventas.setText("VENTAS");
+        jMenu3.setEnabled(false);
+        jMenu3.setPreferredSize(new java.awt.Dimension(16, 10));
+        jMenuBar1.add(jMenu3);
 
+        cventas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/venta.png"))); // NOI18N
+        cventas.setText("VENTAS");
+        cventas.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        cventas.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+
+        mreg_venta.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        mreg_venta.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/regventa.png"))); // NOI18N
         mreg_venta.setText("REGISTRAR VENTA");
+        mreg_venta.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         mreg_venta.addActionListener(this::mreg_ventaActionPerformed);
         cventas.add(mreg_venta);
 
         jMenuBar1.add(cventas);
 
-        ccaja.setText("CAJA");
+        jMenu4.setEnabled(false);
+        jMenu4.setPreferredSize(new java.awt.Dimension(16, 10));
+        jMenuBar1.add(jMenu4);
 
+        ccaja.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/caja.png"))); // NOI18N
+        ccaja.setText("CAJA");
+        ccaja.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        ccaja.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+
+        mc_apertura.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        mc_apertura.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/apertura.png"))); // NOI18N
         mc_apertura.setText("APERTURA");
+        mc_apertura.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         mc_apertura.addActionListener(this::mc_aperturaActionPerformed);
         ccaja.add(mc_apertura);
 
+        mc_cierre.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        mc_cierre.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/cierre.png"))); // NOI18N
         mc_cierre.setText("CIERRE");
+        mc_cierre.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         mc_cierre.addActionListener(this::mc_cierreActionPerformed);
         ccaja.add(mc_cierre);
 
         jMenuBar1.add(ccaja);
 
+        jMenu5.setEnabled(false);
+        jMenu5.setPreferredSize(new java.awt.Dimension(16, 10));
+        jMenuBar1.add(jMenu5);
+
+        creportes.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/reportes.png"))); // NOI18N
         creportes.setText("REPORTES");
+        creportes.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        creportes.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jMenuBar1.add(creportes);
 
         setJMenuBar(jMenuBar1);
@@ -145,11 +225,11 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pinicioadmin, javax.swing.GroupLayout.DEFAULT_SIZE, 863, Short.MAX_VALUE)
+            .addComponent(pinicioadmin, javax.swing.GroupLayout.DEFAULT_SIZE, 922, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pinicioadmin, javax.swing.GroupLayout.DEFAULT_SIZE, 562, Short.MAX_VALUE)
+            .addComponent(pinicioadmin, javax.swing.GroupLayout.DEFAULT_SIZE, 534, Short.MAX_VALUE)
         );
 
         pack();
@@ -178,6 +258,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     }//GEN-LAST:event_ming_productoActionPerformed
 
     private void mc_aperturaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mc_aperturaActionPerformed
+        papertura panelapertura = new papertura();
         pinicioadmin.add(panelapertura, "aperturar caja");
         vista.show(pinicioadmin, "aperturar caja");
         SwingUtilities.updateComponentTreeUI(this);
@@ -185,6 +266,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     }//GEN-LAST:event_mc_aperturaActionPerformed
 
     private void mc_cierreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mc_cierreActionPerformed
+        pcierre panelcierre = new pcierre();
         pinicioadmin.add(panelcierre, "cierre caja");
         vista.show(pinicioadmin, "cierre caja");
         SwingUtilities.updateComponentTreeUI(this);
@@ -245,6 +327,11 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     private javax.swing.JMenu cusuarios;
     private javax.swing.JMenu cventas;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenu jMenu4;
+    private javax.swing.JMenu jMenu5;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem mc_apertura;
     private javax.swing.JMenuItem mc_cierre;

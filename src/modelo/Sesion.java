@@ -4,10 +4,6 @@
  */
 package modelo;
 
-/**
- *
- * @author USUARIO
- */
 public class Sesion {
 
     public static int idUsuario;
