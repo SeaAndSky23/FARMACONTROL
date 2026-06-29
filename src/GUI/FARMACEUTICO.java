@@ -8,6 +8,7 @@ import java.awt.CardLayout;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
+import dao.VentaDAO;
 
 /**
  *
@@ -17,10 +18,7 @@ public class FARMACEUTICO extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger
             = java.util.logging.Logger.getLogger(FARMACEUTICO.class.getName());
-
     pVentasFac pventas = new pVentasFac();
-    pcierre panelcierre = new pcierre();
-    papertura panelapertura = new papertura();
     CardLayout vista;
 
     public FARMACEUTICO() {
@@ -65,13 +63,16 @@ public class FARMACEUTICO extends javax.swing.JFrame {
 
         piniciofarma.setBackground(new java.awt.Color(255, 255, 255));
         piniciofarma.setLayout(new java.awt.CardLayout());
-
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/8072883 (1).png"))); // NOI18N
         piniciofarma.add(jLabel1, "card2");
 
+        jMenuBar1.setBorder(null);
+        jMenuBar1.setOpaque(true);
+
         aa.setText("VENTAS");
+        aa.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         aa.addActionListener(this::aaActionPerformed);
 
+        mrventaf.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
         mrventaf.setText("REGISTRAR VENTA");
         mrventaf.addActionListener(this::mrventafActionPerformed);
         aa.add(mrventaf);
@@ -79,11 +80,14 @@ public class FARMACEUTICO extends javax.swing.JFrame {
         jMenuBar1.add(aa);
 
         jMenu2.setText("CAJA");
+        jMenu2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
 
+        maperturaf.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
         maperturaf.setText("APERTURA");
         maperturaf.addActionListener(this::maperturafActionPerformed);
         jMenu2.add(maperturaf);
 
+        mcierref.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
         mcierref.setText("CIERRE");
         mcierref.addActionListener(this::mcierrefActionPerformed);
         jMenu2.add(mcierref);
@@ -96,11 +100,11 @@ public class FARMACEUTICO extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(piniciofarma, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(piniciofarma, javax.swing.GroupLayout.DEFAULT_SIZE, 825, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(piniciofarma, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(piniciofarma, javax.swing.GroupLayout.DEFAULT_SIZE, 539, Short.MAX_VALUE)
         );
 
         pack();
@@ -111,6 +115,7 @@ public class FARMACEUTICO extends javax.swing.JFrame {
     }//GEN-LAST:event_aaActionPerformed
 
     private void mcierrefActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mcierrefActionPerformed
+        pcierre panelcierre = new pcierre();
         piniciofarma.add(panelcierre, "cierre caja");
         vista.show(piniciofarma, "cierre caja");
         SwingUtilities.updateComponentTreeUI(this);
@@ -118,6 +123,7 @@ public class FARMACEUTICO extends javax.swing.JFrame {
     }//GEN-LAST:event_mcierrefActionPerformed
 
     private void maperturafActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_maperturafActionPerformed
+        papertura panelapertura = new papertura();
         piniciofarma.add(panelapertura, "aperturar caja");
         vista.show(piniciofarma, "aperturar caja");
         SwingUtilities.updateComponentTreeUI(this);
@@ -125,6 +131,15 @@ public class FARMACEUTICO extends javax.swing.JFrame {
     }//GEN-LAST:event_maperturafActionPerformed
 
     private void mrventafActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mrventafActionPerformed
+        // Verificar caja antes de mostrar el panel
+        VentaDAO ventaDAO = new VentaDAO();
+        if (ventaDAO.obtenerIdCajaAbierta() == 0) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Debe aperturar la caja antes de registrar ventas.",
+                    "Caja cerrada",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;  
+        }
         piniciofarma.add(pventas, "registrar venta");
         vista.show(piniciofarma, "registrar venta");
         SwingUtilities.updateComponentTreeUI(this);
