@@ -5,20 +5,20 @@
 package GUI;
 
 import javax.swing.table.DefaultTableModel;
-import java.sql.*;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
-import conexion.ConexioDB;
-import java.awt.Frame;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.SwingUtilities;
+import dao.AlmacenDAO;
 
 /**
  *
  * @author Usuario
  */
 public class palmacen extends javax.swing.JPanel {
+
+    private AlmacenDAO almacenDAO = new AlmacenDAO();
 
     DefaultTableModel modeloAlmacen;
 
@@ -71,81 +71,44 @@ public class palmacen extends javax.swing.JPanel {
     }
 
     private void buscarProductoPorCodigo(String codigo, int fila) {
-        String sql = "SELECT p.Id_producto, "
-                + "(p.descripcion + ' ' + m.nombre_marca) AS desc_com, "
-                + "um.nombre_unidad, pp.multiplo "
-                + "FROM PRODUCTO p "
-                + "INNER JOIN MARCA m ON p.Id_marca = m.Id_marca "
-                + "INNER JOIN PRODUCTO_PRESENTACION pp ON p.Id_producto = pp.Id_producto "
-                + "INNER JOIN UNIDAD_MEDIDA um ON pp.Id_unidad = um.Id_unidad "
-                + "WHERE p.codigo_barras = ? "
-                + "ORDER BY pp.Id_presentacion ASC";
+        List<Object[]> presentaciones = almacenDAO.buscarPresentacionesPorCodigo(codigo);
 
-        try (Connection con = ConexioDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+        if (presentaciones.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "El código '" + codigo + "' no existe en el sistema.",
+                    "Producto no encontrado", JOptionPane.WARNING_MESSAGE);
+            java.awt.EventQueue.invokeLater(() -> modeloAlmacen.setValueAt("", fila, 0));
+            return;
+        }
 
-            ps.setString(1, codigo.trim());
-            List<Object[]> presentaciones = new ArrayList<>();
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    presentaciones.add(new Object[]{
-                        rs.getInt("Id_producto"),
-                        rs.getString("desc_com"),
-                        rs.getString("nombre_unidad"),
-                        rs.getInt("multiplo")
-                    });
-                }
+        Object[] presSeleccionada;
+        if (presentaciones.size() == 1) {
+            presSeleccionada = presentaciones.get(0);
+        } else {
+            String[] opciones = new String[presentaciones.size()];
+            for (int i = 0; i < presentaciones.size(); i++) {
+                Object[] p = presentaciones.get(i);
+                opciones[i] = String.format("%s (x%d)", p[2], p[3]);
             }
-
-            if (presentaciones.isEmpty()) {
-                JOptionPane.showMessageDialog(this,
-                        "El código '" + codigo + "' no existe en el sistema.",
-                        "Producto no encontrado", JOptionPane.WARNING_MESSAGE);
-                java.awt.EventQueue.invokeLater(()
-                        -> modeloAlmacen.setValueAt("", fila, 0));
+            String seleccion = (String) JOptionPane.showInputDialog(this,
+                    "Este producto tiene varias presentaciones.\nSeleccione la que está ingresando:",
+                    "Seleccionar presentación", JOptionPane.QUESTION_MESSAGE,
+                    null, opciones, opciones[0]);
+            if (seleccion == null) {
+                java.awt.EventQueue.invokeLater(() -> modeloAlmacen.setValueAt("", fila, 0));
                 return;
             }
-
-            Object[] presSeleccionada;
-            if (presentaciones.size() == 1) {
-                presSeleccionada = presentaciones.get(0);
-            } else {
-                String[] opciones = new String[presentaciones.size()];
-                for (int i = 0; i < presentaciones.size(); i++) {
-                    Object[] p = presentaciones.get(i);
-                    opciones[i] = String.format("%s (x%d)", p[2], p[3]);
-                }
-                String seleccion = (String) JOptionPane.showInputDialog(
-                        this,
-                        "Este producto tiene varias presentaciones.\nSeleccione la que está ingresando:",
-                        "Seleccionar presentación",
-                        JOptionPane.QUESTION_MESSAGE,
-                        null, opciones, opciones[0]);
-
-                if (seleccion == null) {
-                    java.awt.EventQueue.invokeLater(()
-                            -> modeloAlmacen.setValueAt("", fila, 0));
-                    return;
-                }
-                int indice = java.util.Arrays.asList(opciones).indexOf(seleccion);
-                presSeleccionada = presentaciones.get(indice);
-            }
-
-            final Object[] pres = presSeleccionada;
-            java.awt.EventQueue.invokeLater(() -> {
-                modeloAlmacen.setValueAt(pres[1], fila, 1); // Descripción
-                modeloAlmacen.setValueAt(pres[2], fila, 2); // Unidad
-                modeloAlmacen.setValueAt(1, fila, 3); // Cantidad = 1
-                modeloAlmacen.setValueAt(pres[3], fila, 4); // Multiplo (oculto)
-                modeloAlmacen.setValueAt(pres[0], fila, 5); // Id_producto (oculto)
-            });
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Error de base de datos: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+            presSeleccionada = presentaciones.get(java.util.Arrays.asList(opciones).indexOf(seleccion));
         }
+
+        final Object[] pres = presSeleccionada;
+        java.awt.EventQueue.invokeLater(() -> {
+            modeloAlmacen.setValueAt(pres[1], fila, 1); // Descripción
+            modeloAlmacen.setValueAt(pres[2], fila, 2); // Unidad
+            modeloAlmacen.setValueAt(1, fila, 3); // Cantidad = 1
+            modeloAlmacen.setValueAt(pres[3], fila, 4); // Multiplo (oculto)
+            modeloAlmacen.setValueAt(pres[0], fila, 5); // Id_producto (oculto)
+        });
     }
 
     /**
@@ -164,9 +127,13 @@ public class palmacen extends javax.swing.JPanel {
         jPanel4 = new javax.swing.JPanel();
         cbTipoMovimiento = new javax.swing.JComboBox<>();
         btnagregar = new javax.swing.JButton();
+        btneliminar = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        jButton6 = new javax.swing.JButton();
         btnguardar = new javax.swing.JButton();
         btnmostrar = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setPreferredSize(new java.awt.Dimension(808, 609));
@@ -195,6 +162,7 @@ public class palmacen extends javax.swing.JPanel {
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Tipo Movimiento", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 1, 14))); // NOI18N
 
         cbTipoMovimiento.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "AJUSTE", "INVENTARIO POR PRODUCTO" }));
+        cbTipoMovimiento.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -213,93 +181,151 @@ public class palmacen extends javax.swing.JPanel {
                 .addContainerGap(38, Short.MAX_VALUE))
         );
 
-        btnagregar.setText("+");
+        btnagregar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/mas.png"))); // NOI18N
+        btnagregar.setBorder(null);
+        btnagregar.setBorderPainted(false);
+        btnagregar.setContentAreaFilled(false);
+        btnagregar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnagregar.setFocusPainted(false);
         btnagregar.addActionListener(this::btnagregarActionPerformed);
 
-        btnguardar.setText("GUARDAR");
-        btnguardar.addActionListener(this::btnguardarActionPerformed);
-
-        btnmostrar.setText("MOSTRAR TODOS LOS PRODUCTOS");
-        btnmostrar.addActionListener(this::btnmostrarActionPerformed);
+        btneliminar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/menos.png"))); // NOI18N
+        btneliminar.setBorder(null);
+        btneliminar.setBorderPainted(false);
+        btneliminar.setContentAreaFilled(false);
+        btneliminar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btneliminar.setFocusPainted(false);
+        btneliminar.addActionListener(this::btneliminarActionPerformed);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(62, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 661, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnagregar)
-                .addGap(32, 32, 32))
             .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(48, 48, 48)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(52, 52, 52)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(176, 176, 176)
-                        .addComponent(btnguardar))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(83, 83, 83)
-                        .addComponent(btnmostrar, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 661, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnagregar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btneliminar)))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(29, 29, 29)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(111, 111, 111)
-                        .addComponent(btnguardar))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(65, 65, 65)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 57, Short.MAX_VALUE)
-                .addComponent(btnmostrar)
-                .addGap(44, 44, 44)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 274, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnagregar)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(41, 41, 41))
+                    .addComponent(btneliminar))
+                .addGap(44, 44, 44))
         );
 
-        jButton6.setText("CERRAR");
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+
+        jButton6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/salir.png"))); // NOI18N
+        jButton6.setText("SALIR");
+        jButton6.setBorder(null);
+        jButton6.setBorderPainted(false);
+        jButton6.setContentAreaFilled(false);
+        jButton6.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton6.setFocusPainted(false);
         jButton6.addActionListener(this::jButton6ActionPerformed);
+
+        btnguardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/guardar.png"))); // NOI18N
+        btnguardar.setBorder(null);
+        btnguardar.setBorderPainted(false);
+        btnguardar.setContentAreaFilled(false);
+        btnguardar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnguardar.setFocusPainted(false);
+        btnguardar.addActionListener(this::btnguardarActionPerformed);
+
+        btnmostrar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/buscarprod.png"))); // NOI18N
+        btnmostrar.setBorder(null);
+        btnmostrar.setBorderPainted(false);
+        btnmostrar.setContentAreaFilled(false);
+        btnmostrar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnmostrar.setFocusPainted(false);
+        btnmostrar.addActionListener(this::btnmostrarActionPerformed);
+
+        jLabel4.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        jLabel4.setText("BUSCAR PRODUCTO");
+
+        jLabel12.setFont(new java.awt.Font("Arial", 0, 10)); // NOI18N
+        jLabel12.setText("GUARDAR");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(132, 132, 132)
+                        .addComponent(btnmostrar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(114, 114, 114)
+                        .addComponent(jLabel4)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 143, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnguardar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel12)))
+                .addGap(147, 147, 147)
+                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(69, 69, 69))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(9, 9, 9)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnguardar)
+                    .addComponent(btnmostrar)
+                    .addComponent(jButton6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel12))
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(14, 14, 14))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(48, 48, 48)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(58, Short.MAX_VALUE))
+                .addGap(61, 61, 61)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(42, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jButton6)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(25, 25, 25)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(47, Short.MAX_VALUE))
+                .addContainerGap(79, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 906, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 928, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 692, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 759, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -315,123 +341,52 @@ public class palmacen extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void btnguardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnguardarActionPerformed
-        // Validar que la tabla contenga información procesable
-        if (modeloAlmacen.getRowCount() == 0 || modeloAlmacen.getValueAt(0, 3).toString().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "La tabla está vacía o no tiene productos válidos cargados.", "Datos insuficientes", JOptionPane.WARNING_MESSAGE);
+        if (modeloAlmacen.getRowCount() == 0
+                || modeloAlmacen.getValueAt(0, 3) == null
+                || modeloAlmacen.getValueAt(0, 3).toString().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "La tabla está vacía o no tiene productos válidos.",
+                    "Datos insuficientes", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Obtener el tipo de movimiento seleccionado en el ComboBox
         String tipoMovimiento = cbTipoMovimiento.getSelectedItem().toString();
 
-        Connection con = null;
-        PreparedStatement psReset = null;
-        PreparedStatement psUpdate = null;
-        PreparedStatement psHistorial = null;
-
-        try {
-            con = ConexioDB.getConexion();
-            con.setAutoCommit(false); // Transacción atómica segura
-
-            // Definición de consultas SQL transaccionales
-            String sqlReset = "UPDATE ALMACEN_STOCK SET stock_actual = 0 WHERE Id_producto = ?";
-
-            String sqlUpdate = "MERGE INTO ALMACEN_STOCK AS Destino "
-                    + "USING (SELECT ? AS Id_producto) AS Origen "
-                    + "ON (Destino.Id_producto = Origen.Id_producto) "
-                    + "WHEN MATCHED THEN "
-                    + "    UPDATE SET stock_actual = Destino.stock_actual + ? "
-                    + "WHEN NOT MATCHED THEN "
-                    + "    INSERT (Id_producto, stock_actual) VALUES (Origen.Id_producto, ?);";
-
-            String sqlHistorial = "INSERT INTO HISTORIAL_INVENTARIO (Id_producto, tipo_movimiento, cantidad, fecha_movimiento) VALUES (?, ?, ?, GETDATE())";
-
-            psReset = con.prepareStatement(sqlReset);
-            psUpdate = con.prepareStatement(sqlUpdate);
-            psHistorial = con.prepareStatement(sqlHistorial);
-
-            // --- PASO 1: Si es INVENTARIO POR PRODUCTO, borrón y cuenta nueva a 0 de los ítems en lista ---
-            if (tipoMovimiento.equalsIgnoreCase("Inventario por Producto")) {
-                for (int i = 0; i < modeloAlmacen.getRowCount(); i++) {
-                    if (modeloAlmacen.getValueAt(i, 5) != null && !modeloAlmacen.getValueAt(i, 5).toString().isEmpty()) {
-                        int idProd = Integer.parseInt(modeloAlmacen.getValueAt(i, 5).toString());
-                        psReset.setInt(1, idProd);
-                        psReset.addBatch();
-                    }
-                }
-                psReset.executeBatch();
+        // Recoger solo las filas completas (que tengan Id_producto)
+        List<Object[]> filas = new ArrayList<>();
+        for (int i = 0; i < modeloAlmacen.getRowCount(); i++) {
+            Object idObj = modeloAlmacen.getValueAt(i, 5);
+            Object canObj = modeloAlmacen.getValueAt(i, 3);
+            if (idObj == null || idObj.toString().isEmpty()) {
+                continue;
             }
-
-            // --- PASO 2: Inyección de stock y generación de Kárdex/Historial ---
-            for (int i = 0; i < modeloAlmacen.getRowCount(); i++) {
-                if (modeloAlmacen.getValueAt(i, 5) == null || modeloAlmacen.getValueAt(i, 5).toString().isEmpty()
-                        || modeloAlmacen.getValueAt(i, 3) == null || modeloAlmacen.getValueAt(i, 2).toString().isEmpty()) {
-                    continue; // Ignora filas que se encuentren incompletas
-                }
-
-                int idProd = Integer.parseInt(modeloAlmacen.getValueAt(i, 5).toString());
-                int cantidad = Integer.parseInt(modeloAlmacen.getValueAt(i, 3).toString());
-                Object multiploObj = modeloAlmacen.getValueAt(i, 4);
-                int multiplo = (multiploObj != null && !multiploObj.toString().isEmpty())
-                        ? Integer.parseInt(multiploObj.toString()) : 1;
-                int cantidadStock = cantidad * multiplo;
-
-                if (cantidad <= 0) {
-                    con.rollback(); // Cancela la operación completa ante inconsistencias
-                    JOptionPane.showMessageDialog(this, "Error en fila " + (i + 1) + ": La cantidad de ingreso debe ser mayor a 0.", "Valor inválido", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                // Parámetros de actualización de Stock
-                psUpdate.setInt(1, idProd);
-                psUpdate.setInt(2, cantidadStock);
-                psUpdate.setInt(3, cantidadStock);
-                psUpdate.addBatch();
-
-                // Parámetros de Auditoría/Historial
-                psHistorial.setInt(1, idProd);
-                psHistorial.setString(2, tipoMovimiento.toUpperCase());
-                psHistorial.setInt(3, cantidadStock);
-                psHistorial.addBatch();
+            if (canObj == null || canObj.toString().isEmpty()) {
+                continue;
             }
+            filas.add(new Object[]{
+                modeloAlmacen.getValueAt(i, 0), // código barras
+                modeloAlmacen.getValueAt(i, 1), // descripción
+                modeloAlmacen.getValueAt(i, 2), // unidad
+                modeloAlmacen.getValueAt(i, 3), // cantidad
+                modeloAlmacen.getValueAt(i, 4), // multiplo
+                modeloAlmacen.getValueAt(i, 5) // Id_producto
+            });
+        }
 
-            // Ejecución por bloques de comandos (Batch processing)
-            psUpdate.executeBatch();
-            psHistorial.executeBatch();
+        if (filas.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "No hay filas válidas para guardar.",
+                    "Sin datos", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-            con.commit(); // Todo se guardó correctamente sin fallos
-            JOptionPane.showMessageDialog(this, "¡Movimiento de Almacén (" + tipoMovimiento + ") procesado con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-            // Reestructuración y reinicio limpio de la interfaz gráfica
+        boolean exito = almacenDAO.guardarMovimientoStock(tipoMovimiento, filas);
+        if (exito) {
+            JOptionPane.showMessageDialog(this,
+                    "¡Movimiento de Almacén (" + tipoMovimiento + ") procesado con éxito!",
+                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
             modeloAlmacen.setRowCount(0);
             inicializarFilaVacia();
-
-        } catch (SQLException e) {
-            if (con != null) {
-                try {
-                    con.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            JOptionPane.showMessageDialog(this, "Error crítico al procesar el ingreso de almacén: " + e.getMessage(), "Error de Transacción", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            try {
-                if (psReset != null) {
-                    psReset.close();
-                }
-                if (psUpdate != null) {
-                    psUpdate.close();
-                }
-                if (psHistorial != null) {
-                    psHistorial.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }//GEN-LAST:event_btnguardarActionPerformed
 
@@ -440,24 +395,75 @@ public class palmacen extends javax.swing.JPanel {
     }//GEN-LAST:event_btnagregarActionPerformed
 
     private void btnmostrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnmostrarActionPerformed
-        // 1. Abrir el diálogo
         JDproducto dialog = new JDproducto(
                 (java.awt.Frame) SwingUtilities.getWindowAncestor(this), true);
         dialog.setVisible(true);
+
         String codigo = dialog.getCodigoBarrasSeleccionado();
         if (codigo == null) {
             return;
         }
+
+        // Buscar fila vacía
+        int filaDestino = -1;
+        for (int i = 0; i < modeloAlmacen.getRowCount(); i++) {
+            Object val = modeloAlmacen.getValueAt(i, 0);
+            if (val == null || val.toString().trim().isEmpty()) {
+                filaDestino = i;
+                break;
+            }
+        }
+        if (filaDestino == -1) {
+            modeloAlmacen.addRow(new Object[]{"", "", "", "", "", ""});
+            filaDestino = modeloAlmacen.getRowCount() - 1;
+        }
+
+        // Escribir el código → el TableModelListener completa el resto
+        modeloAlmacen.setValueAt(codigo, filaDestino, 0);
     }//GEN-LAST:event_btnmostrarActionPerformed
+
+    private void btneliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btneliminarActionPerformed
+        int filaSeleccionada = talmacen_ingreso.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Seleccione una fila para eliminar.",
+                    "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // No permitir eliminar la fila vacía final
+        Object idProd = modeloAlmacen.getValueAt(filaSeleccionada, 5);
+        if (idProd == null || idProd.toString().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "No puede eliminar una fila vacía.",
+                    "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int confirmar = JOptionPane.showConfirmDialog(this,
+                "¿Desea eliminar: " + modeloAlmacen.getValueAt(filaSeleccionada, 1) + "?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
+        if (confirmar == JOptionPane.YES_OPTION) {
+            modeloAlmacen.removeRow(filaSeleccionada);
+        }
+    }//GEN-LAST:event_btneliminarActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnagregar;
+    private javax.swing.JButton btneliminar;
     private javax.swing.JButton btnguardar;
     private javax.swing.JButton btnmostrar;
     private javax.swing.JComboBox<String> cbTipoMovimiento;
     private javax.swing.JButton jButton6;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
