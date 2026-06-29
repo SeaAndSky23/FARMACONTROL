@@ -93,6 +93,8 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
 
         pinicioadmin.setBackground(new java.awt.Color(255, 255, 255));
         pinicioadmin.setLayout(new java.awt.CardLayout());
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/logo.png"))); // NOI18N
         pinicioadmin.add(jLabel1, "card2");
 
         jMenuBar1.setBorder(null);
@@ -100,17 +102,22 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         jMenuBar1.setFont(new java.awt.Font("Cambria Math", 1, 18)); // NOI18N
         jMenuBar1.setOpaque(true);
 
+        cusuarios.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/seguridad.png"))); // NOI18N
         cusuarios.setText("SEGURIDAD");
         cusuarios.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         cusuarios.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
 
         mtrabajadores.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        mtrabajadores.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/trabajador.png"))); // NOI18N
         mtrabajadores.setText("TRABAJADORES");
+        mtrabajadores.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         mtrabajadores.addActionListener(this::mtrabajadoresActionPerformed);
         cusuarios.add(mtrabajadores);
 
         musuarios.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        musuarios.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/usuario.png"))); // NOI18N
         musuarios.setText("USUARIOS");
+        musuarios.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         musuarios.addActionListener(this::musuariosActionPerformed);
         cusuarios.add(musuarios);
 
@@ -120,12 +127,15 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         jMenu1.setPreferredSize(new java.awt.Dimension(16, 8));
         jMenuBar1.add(jMenu1);
 
+        cmercaderia.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/mercaderia.png"))); // NOI18N
         cmercaderia.setText("MERCADERIA");
         cmercaderia.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         cmercaderia.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
 
         ming_producto.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        ming_producto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/crearprod.png"))); // NOI18N
         ming_producto.setText("CREAR PRODUCTO");
+        ming_producto.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         ming_producto.addActionListener(this::ming_productoActionPerformed);
         cmercaderia.add(ming_producto);
 
@@ -135,17 +145,22 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         jMenu2.setPreferredSize(new java.awt.Dimension(16, 10));
         jMenuBar1.add(jMenu2);
 
+        calmacen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/almacen.png"))); // NOI18N
         calmacen.setText("ALMACEN");
         calmacen.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         calmacen.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
 
         ming_almacen.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        ming_almacen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/ingalmacen.png"))); // NOI18N
         ming_almacen.setText("INGRESO ALMACEN");
+        ming_almacen.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         ming_almacen.addActionListener(this::ming_almacenActionPerformed);
         calmacen.add(ming_almacen);
 
         mkardex.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        mkardex.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/kardex.png"))); // NOI18N
         mkardex.setText("KARDEX");
+        mkardex.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         mkardex.addActionListener(this::mkardexActionPerformed);
         calmacen.add(mkardex);
 
@@ -155,12 +170,15 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         jMenu3.setPreferredSize(new java.awt.Dimension(16, 10));
         jMenuBar1.add(jMenu3);
 
+        cventas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/venta.png"))); // NOI18N
         cventas.setText("VENTAS");
         cventas.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         cventas.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
 
         mreg_venta.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        mreg_venta.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/regventa.png"))); // NOI18N
         mreg_venta.setText("REGISTRAR VENTA");
+        mreg_venta.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         mreg_venta.addActionListener(this::mreg_ventaActionPerformed);
         cventas.add(mreg_venta);
 
@@ -170,17 +188,22 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         jMenu4.setPreferredSize(new java.awt.Dimension(16, 10));
         jMenuBar1.add(jMenu4);
 
+        ccaja.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/caja.png"))); // NOI18N
         ccaja.setText("CAJA");
         ccaja.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         ccaja.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
 
         mc_apertura.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        mc_apertura.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/apertura.png"))); // NOI18N
         mc_apertura.setText("APERTURA");
+        mc_apertura.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         mc_apertura.addActionListener(this::mc_aperturaActionPerformed);
         ccaja.add(mc_apertura);
 
         mc_cierre.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        mc_cierre.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/cierre.png"))); // NOI18N
         mc_cierre.setText("CIERRE");
+        mc_cierre.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         mc_cierre.addActionListener(this::mc_cierreActionPerformed);
         ccaja.add(mc_cierre);
 
@@ -190,6 +213,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         jMenu5.setPreferredSize(new java.awt.Dimension(16, 10));
         jMenuBar1.add(jMenu5);
 
+        creportes.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/reportes.png"))); // NOI18N
         creportes.setText("REPORTES");
         creportes.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         creportes.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
@@ -205,7 +229,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pinicioadmin, javax.swing.GroupLayout.DEFAULT_SIZE, 562, Short.MAX_VALUE)
+            .addComponent(pinicioadmin, javax.swing.GroupLayout.DEFAULT_SIZE, 534, Short.MAX_VALUE)
         );
 
         pack();

@@ -69,17 +69,20 @@ public class INICIO_SESION extends javax.swing.JFrame {
         jLabel5.setForeground(new java.awt.Color(0, 82, 157));
         jLabel5.setText("FARMACIA BLASFARMA");
 
+        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/logo1.png"))); // NOI18N
+
         jLabel7.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel7.setText("USUARIO");
 
         txtusuario.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
-        txtusuario.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        txtusuario.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         jLabel8.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabel8.setText("CLAVE");
 
         btningresar.setBackground(new java.awt.Color(249, 249, 249));
         btningresar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btningresar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/iniciarse.png"))); // NOI18N
         btningresar.setText("  INGRESAR");
         btningresar.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         btningresar.setContentAreaFilled(false);
@@ -89,12 +92,14 @@ public class INICIO_SESION extends javax.swing.JFrame {
 
         btnsalir.setBackground(new java.awt.Color(204, 204, 204));
         btnsalir.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnsalir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/cerrarse.png"))); // NOI18N
         btnsalir.setText("SALIR");
         btnsalir.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         btnsalir.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnsalir.addActionListener(this::btnsalirActionPerformed);
 
         txtclave.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        txtclave.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -102,14 +107,12 @@ public class INICIO_SESION extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel8)
                     .addComponent(jLabel7)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(jLabel6)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(txtclave, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtusuario, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addComponent(txtclave)
+                    .addComponent(txtusuario, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)

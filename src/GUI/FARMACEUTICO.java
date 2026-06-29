@@ -59,6 +59,7 @@ public class FARMACEUTICO extends javax.swing.JFrame {
         mcierref = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("BIENVENIDO AL SISTEMA DE CONTROL COMERCIAL");
         setBackground(new java.awt.Color(255, 255, 255));
 
         piniciofarma.setBackground(new java.awt.Color(255, 255, 255));
@@ -68,26 +69,34 @@ public class FARMACEUTICO extends javax.swing.JFrame {
         jMenuBar1.setBorder(null);
         jMenuBar1.setOpaque(true);
 
+        aa.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/venta.png"))); // NOI18N
         aa.setText("VENTAS");
+        aa.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         aa.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         aa.addActionListener(this::aaActionPerformed);
 
         mrventaf.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        mrventaf.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/regventa.png"))); // NOI18N
         mrventaf.setText("REGISTRAR VENTA");
+        mrventaf.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         mrventaf.addActionListener(this::mrventafActionPerformed);
         aa.add(mrventaf);
 
         jMenuBar1.add(aa);
 
+        jMenu2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/caja.png"))); // NOI18N
         jMenu2.setText("CAJA");
+        jMenu2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jMenu2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
 
         maperturaf.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        maperturaf.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/apertura.png"))); // NOI18N
         maperturaf.setText("APERTURA");
         maperturaf.addActionListener(this::maperturafActionPerformed);
         jMenu2.add(maperturaf);
 
         mcierref.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        mcierref.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/cierre.png"))); // NOI18N
         mcierref.setText("CIERRE");
         mcierref.addActionListener(this::mcierrefActionPerformed);
         jMenu2.add(mcierref);
@@ -104,7 +113,7 @@ public class FARMACEUTICO extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(piniciofarma, javax.swing.GroupLayout.DEFAULT_SIZE, 539, Short.MAX_VALUE)
+            .addComponent(piniciofarma, javax.swing.GroupLayout.DEFAULT_SIZE, 511, Short.MAX_VALUE)
         );
 
         pack();
