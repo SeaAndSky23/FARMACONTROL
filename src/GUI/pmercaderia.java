@@ -397,6 +397,7 @@ public class pmercaderia extends javax.swing.JPanel {
         btnconcentracion = new javax.swing.JButton();
         btnpactivo = new javax.swing.JButton();
         btnagmarca = new javax.swing.JButton();
+        txtFechaVencimiento = new com.toedter.calendar.JDateChooser();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tpresentacion = new javax.swing.JTable();
@@ -668,9 +669,12 @@ public class pmercaderia extends javax.swing.JPanel {
                                 .addGroup(jPanel3Layout.createSequentialGroup()
                                     .addComponent(jLabel7)
                                     .addGap(32, 32, 32)))
-                            .addComponent(cbCondventa, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btncventa))))
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(jPanel3Layout.createSequentialGroup()
+                                    .addComponent(cbCondventa, 0, 193, Short.MAX_VALUE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(btncventa))
+                                .addComponent(txtFechaVencimiento, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                 .addContainerGap(61, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -711,8 +715,10 @@ public class pmercaderia extends javax.swing.JPanel {
                     .addComponent(jLabel8)
                     .addComponent(cbCondventa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btncventa))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel7)
+                    .addComponent(txtFechaVencimiento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1104,5 +1110,6 @@ public class pmercaderia extends javax.swing.JPanel {
     private javax.swing.JTable tpresentacion;
     private javax.swing.JTextField txtCodigoBarras;
     private javax.swing.JTextField txtDescripcion;
+    private com.toedter.calendar.JDateChooser txtFechaVencimiento;
     // End of variables declaration//GEN-END:variables
 }
