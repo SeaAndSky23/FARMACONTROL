@@ -26,6 +26,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     pmercaderia panelmercaderia = new pmercaderia();
     proles panelusuarios = new proles();
     ptrabajadores paneltrabajadores = new ptrabajadores();
+    putilidades panelutilidades = new putilidades();
     CardLayout vista;
 
     private int idUsuarioLogueado;
@@ -87,6 +88,8 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         mc_cierre = new javax.swing.JMenuItem();
         jMenu5 = new javax.swing.JMenu();
         creportes = new javax.swing.JMenu();
+        m_utilidades = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("BIENVENIDO AL SISTEMA DE CONTROL COMERCIAL");
@@ -217,6 +220,14 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         creportes.setText("REPORTES");
         creportes.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         creportes.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+
+        m_utilidades.setText("UTILIDADES");
+        m_utilidades.addActionListener(this::m_utilidadesActionPerformed);
+        creportes.add(m_utilidades);
+
+        jMenuItem2.setText("RANKING PRODUCTOS");
+        creportes.add(jMenuItem2);
+
         jMenuBar1.add(creportes);
 
         setJMenuBar(jMenuBar1);
@@ -294,6 +305,13 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         this.repaint();
     }//GEN-LAST:event_mkardexActionPerformed
 
+    private void m_utilidadesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_m_utilidadesActionPerformed
+        pinicioadmin.add(panelutilidades, "calculo utitlidades");
+        vista.show(pinicioadmin, "calculo utitlidades");
+        SwingUtilities.updateComponentTreeUI(this);
+        this.repaint();
+    }//GEN-LAST:event_m_utilidadesActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -333,6 +351,8 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenu jMenu5;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem m_utilidades;
     private javax.swing.JMenuItem mc_apertura;
     private javax.swing.JMenuItem mc_cierre;
     private javax.swing.JMenuItem ming_almacen;
