@@ -58,7 +58,7 @@ public class ProductoDAO {
     }
 
     private Object[] mapearFila(ResultSet rs) throws SQLException {
-        Object[] fila = new Object[13];
+        Object[] fila = new Object[15];
         fila[0] = rs.getInt("Id_producto");
         fila[1] = rs.getString("codigo_barras");
         fila[2] = rs.getString("descripcion");
@@ -72,6 +72,8 @@ public class ProductoDAO {
         fila[10] = rs.getObject("multiplo");
         fila[11] = rs.getDouble("precio_venta");
         fila[12] = rs.getDouble("precio_compra");
+        fila[13] = rs.getInt("stock_actual");
+        fila[14] = rs.getInt("stock_minimo");
         return fila;
     }
 
@@ -130,7 +132,7 @@ public class ProductoDAO {
                 + "(Id_producto, Id_unidad, multiplo, aplica_igv, precio_venta, precio_compra) "
                 + "VALUES (?, ?, ?, ?, ?, ?)";
 
-        String sqlStock = "INSERT INTO ALMACEN_STOCK (Id_producto, stock_actual) VALUES (?, 0)";
+        String sqlStock = "INSERT INTO ALMACEN_STOCK (Id_producto, stock_actual, stock_minimo) VALUES (?, 0, ?)";
 
         try {
             con = ConexioDB.getConexion();
@@ -174,6 +176,7 @@ public class ProductoDAO {
             // 3. Inicializar stock en 0
             pstStock = con.prepareStatement(sqlStock);
             pstStock.setInt(1, idProductoGenerado);
+            pstStock.setInt(2, producto.getStockMinimo());
             pstStock.executeUpdate();
 
             con.commit();
@@ -213,6 +216,23 @@ public class ProductoDAO {
         }
     }
 
+    public boolean actualizarStockMinimo(int idProducto, int stockMinimo) {
+        String sql = "MERGE INTO ALMACEN_STOCK AS Destino "
+                + "USING (SELECT ? AS Id_producto) AS Origen "
+                + "ON (Destino.Id_producto = Origen.Id_producto) "
+                + "WHEN MATCHED THEN UPDATE SET stock_minimo = ? "
+                + "WHEN NOT MATCHED THEN INSERT (Id_producto, stock_actual, stock_minimo) VALUES (Origen.Id_producto, 0, ?);";
+        try (Connection con = ConexioDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idProducto);
+            ps.setInt(2, stockMinimo);
+            ps.setInt(3, stockMinimo);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar stock mínimo: " + e.getMessage());
+            return false;
+        }
+    }
+
     //MOSTRAR TODAS LAS PRESENTACIONES POR PRODUCTO
     public List<Object[]> listarPresentacionesPorCodigoBarras(String codigo) {
         List<Object[]> lista = new ArrayList<>();
@@ -244,13 +264,16 @@ public class ProductoDAO {
         Object[] datos = null;
         String sql = "SELECT p.Id_producto, p.codigo_barras, p.descripcion, "
                 + "p.Id_marca, p.Id_principio, p.Id_concentracion, "
-                + "p.Id_forma, p.fecha_vencimiento, p.Id_condicion "
-                + "FROM PRODUCTO p WHERE p.Id_producto = ?";
+                + "p.Id_forma, p.fecha_vencimiento, p.Id_condicion, "
+                + "ISNULL(a.stock_minimo, 0) AS stock_minimo "
+                + "FROM PRODUCTO p "
+                + "LEFT JOIN ALMACEN_STOCK a ON p.Id_producto = a.Id_producto "
+                + "WHERE p.Id_producto = ?";
         try (PreparedStatement pst = cn.prepareStatement(sql)) {
             pst.setInt(1, idProducto);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
-                    datos = new Object[9];
+                    datos = new Object[10];
                     datos[0] = rs.getInt("Id_producto");
                     datos[1] = rs.getString("codigo_barras");
                     datos[2] = rs.getString("descripcion");
@@ -260,6 +283,7 @@ public class ProductoDAO {
                     datos[6] = rs.getInt("Id_forma");
                     datos[7] = rs.getDate("fecha_vencimiento");
                     datos[8] = rs.getInt("Id_condicion");
+                    datos[9] = rs.getInt("stock_minimo"); // NUEVO
                 }
             }
         } catch (SQLException e) {
@@ -344,6 +368,13 @@ public class ProductoDAO {
                     pst.addBatch();
                 }
                 pst.executeBatch();
+            }
+            // 4. Actualizar stock mínimo (no tocar stock_actual, eso lo maneja AlmacenDAO)
+            String sqlStockMin = "UPDATE ALMACEN_STOCK SET stock_minimo = ? WHERE Id_producto = ?";
+            try (PreparedStatement pst = con.prepareStatement(sqlStockMin)) {
+                pst.setInt(1, producto.getStockMinimo());
+                pst.setInt(2, producto.getIdProducto());
+                pst.executeUpdate();
             }
 
             con.commit();

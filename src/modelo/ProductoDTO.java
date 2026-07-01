@@ -17,6 +17,7 @@ public class ProductoDTO {
     private int idForma;
     private Date fechaVencimiento;
     private int idCondicion;
+    private int stockMinimo;
 
     public ProductoDTO() {
     }
@@ -91,5 +92,13 @@ public class ProductoDTO {
 
     public void setIdCondicion(int idCondicion) {
         this.idCondicion = idCondicion;
+    }
+
+    public int getStockMinimo() {
+        return stockMinimo;
+    }
+
+    public void setStockMinimo(int stockMinimo) {
+        this.stockMinimo = stockMinimo;
     }
 }

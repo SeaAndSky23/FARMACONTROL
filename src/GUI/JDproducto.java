@@ -35,8 +35,13 @@ public class JDproducto extends javax.swing.JDialog {
     private final String[] columnas = {
         "ID", "Código de Barras", "Descripción", "Marca", "Principio Activo",
         "Concentración", "Forma Farmacéutica", "Fecha Vencimiento",
-        "Condición de Venta", "Medida", "Múltiplo", "Precio Venta", "Precio Compra"
+        "Condición de Venta", "Medida", "Múltiplo", "Precio Venta", "Precio Compra",
+        "Stock Actual", "Stock Mínimo"
     };
+    private static final int COL_MEDIDA = 9;
+    private static final int COL_MULTIPLO = 10;
+    private static final int COL_STOCK_ACTUAL = 13;
+    private static final int COL_STOCK_MINIMO = 14;
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(JDproducto.class.getName());
 
@@ -48,7 +53,15 @@ public class JDproducto extends javax.swing.JDialog {
         initComponents();
         setTitle("Catálogo de Productos");
         setLocationRelativeTo(parent);
+        configurarResaltadoStock();
         cargarProductos();
+
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowActivated(java.awt.event.WindowEvent e) {
+                cargarProductos();
+            }
+        });
 
         txtbuscar.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
@@ -72,9 +85,48 @@ public class JDproducto extends javax.swing.JDialog {
         });
     }
 
-    public void ajustarAnchosTabla(JTable tabla) {
-        int[] anchos = {20, 120, 200, 140, 140, 130, 100, 90, 110, 90, 70, 85, 85};
+    private void configurarResaltadoStock() {
+        final java.awt.Color ROJO_ALERTA = new java.awt.Color(255, 190, 190);       // stock negativo
+        final java.awt.Color CELESTE_GRIS = new java.awt.Color(200, 217, 225);      // stock bajo (0 < actual <= mínimo)
 
+        tproducto.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                java.awt.Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                java.awt.Color colorFondo = java.awt.Color.WHITE;
+                try {
+                    Object actualObj = table.getModel().getValueAt(row, COL_STOCK_ACTUAL);
+                    Object minimoObj = table.getModel().getValueAt(row, COL_STOCK_MINIMO);
+                    if (actualObj != null && minimoObj != null) {
+                        int actual = ((Number) actualObj).intValue();
+                        int minimo = ((Number) minimoObj).intValue();
+
+                        if (actual < 0) {
+                            colorFondo = ROJO_ALERTA;
+                        } else if (actual > 0 && actual <= minimo) {
+                            colorFondo = CELESTE_GRIS;
+                        }
+                    }
+                } catch (Exception ex) {
+                    // fila sin datos numéricos válidos, ignorar
+                }
+
+                if (!isSelected) {
+                    c.setBackground(colorFondo);
+                } else {
+                    c.setBackground(colorFondo.equals(java.awt.Color.WHITE)
+                            ? table.getSelectionBackground()
+                            : colorFondo.darker());
+                }
+                return c;
+            }
+        });
+    }
+
+    public void ajustarAnchosTabla(JTable tabla) {
+        int[] anchos = {20, 120, 200, 140, 140, 130, 100, 90, 110, 90, 70, 85, 85, 90, 90};
         for (int i = 0; i < tabla.getColumnCount(); i++) {
             if (i < anchos.length) {
                 tabla.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
@@ -99,6 +151,17 @@ public class JDproducto extends javax.swing.JDialog {
         llenarTabla(productos);
     }
 
+    private void ocultarColumnas(JTable tabla) {
+        int[] colsOcultas = {COL_MEDIDA, COL_MULTIPLO};
+        for (int col : colsOcultas) {
+            if (col < tabla.getColumnCount()) {
+                tabla.getColumnModel().getColumn(col).setMinWidth(0);
+                tabla.getColumnModel().getColumn(col).setMaxWidth(0);
+                tabla.getColumnModel().getColumn(col).setPreferredWidth(0);
+            }
+        }
+    }
+
     private void llenarTabla(List<Object[]> productos) {
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
             @Override
@@ -110,8 +173,7 @@ public class JDproducto extends javax.swing.JDialog {
         java.util.Set<Integer> idsAgregados = new java.util.HashSet<>();
 
         for (Object[] fila : productos) {
-            Integer idProducto = (Integer) fila[0]; // columna 0 = Id_producto
-
+            Integer idProducto = (Integer) fila[0];
             if (!idsAgregados.contains(idProducto)) {
                 idsAgregados.add(idProducto);
                 modelo.addRow(fila);
@@ -120,6 +182,7 @@ public class JDproducto extends javax.swing.JDialog {
 
         tproducto.setModel(modelo);
         ajustarAnchosTabla(tproducto);
+        ocultarColumnas(tproducto);
     }
 
     /**
@@ -177,8 +240,8 @@ public class JDproducto extends javax.swing.JDialog {
                 .addGap(176, 176, 176))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1215, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(58, 58, 58))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1236, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(37, 37, 37))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
