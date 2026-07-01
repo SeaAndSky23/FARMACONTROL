@@ -87,7 +87,7 @@ public class JDproducto extends javax.swing.JDialog {
 
     private void configurarResaltadoStock() {
         final java.awt.Color ROJO_ALERTA = new java.awt.Color(255, 190, 190);       // stock negativo
-        final java.awt.Color CELESTE_GRIS = new java.awt.Color(200, 217, 225);      // stock bajo (0 < actual <= mínimo)
+        final java.awt.Color CELESTE_GRIS = new java.awt.Color(231,245,246);      // stock bajo (0 < actual <= mínimo)
 
         tproducto.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
             @Override
@@ -199,7 +199,6 @@ public class JDproducto extends javax.swing.JDialog {
         tproducto = new javax.swing.JTable();
         txtbuscar = new javax.swing.JTextField();
         btnbuscar = new javax.swing.JButton();
-        btnMostrarTodos = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -223,9 +222,6 @@ public class JDproducto extends javax.swing.JDialog {
         btnbuscar.setText("BUSCAR");
         btnbuscar.addActionListener(this::btnbuscarActionPerformed);
 
-        btnMostrarTodos.setText("MOSTRAR TODO");
-        btnMostrarTodos.addActionListener(this::btnMostrarTodosActionPerformed);
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -235,9 +231,7 @@ public class JDproducto extends javax.swing.JDialog {
                 .addComponent(txtbuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 529, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnbuscar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnMostrarTodos)
-                .addGap(176, 176, 176))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1236, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -249,8 +243,7 @@ public class JDproducto extends javax.swing.JDialog {
                 .addGap(57, 57, 57)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtbuscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnbuscar)
-                    .addComponent(btnMostrarTodos))
+                    .addComponent(btnbuscar))
                 .addGap(34, 34, 34)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 685, Short.MAX_VALUE)
                 .addContainerGap())
@@ -275,10 +268,6 @@ public class JDproducto extends javax.swing.JDialog {
     private void btnbuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnbuscarActionPerformed
         buscarProducto();
     }//GEN-LAST:event_btnbuscarActionPerformed
-
-    private void btnMostrarTodosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMostrarTodosActionPerformed
-        cargarProductos();
-    }//GEN-LAST:event_btnMostrarTodosActionPerformed
 
     private void txtbuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtbuscarActionPerformed
         buscarProducto();
@@ -322,7 +311,6 @@ public class JDproducto extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnMostrarTodos;
     private javax.swing.JButton btnbuscar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
