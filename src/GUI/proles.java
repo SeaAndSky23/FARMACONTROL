@@ -170,13 +170,14 @@ public class proles extends javax.swing.JPanel {
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         cmbRol = new javax.swing.JComboBox<>();
-        btncerrar = new javax.swing.JButton();
-        btnguardar = new javax.swing.JButton();
         txtClave = new javax.swing.JPasswordField();
-        btneliminar = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
         btneditar = new javax.swing.JButton();
-        btncancelar = new javax.swing.JButton();
+        btnguardar = new javax.swing.JButton();
+        btneliminar = new javax.swing.JButton();
         btnEstado = new javax.swing.JButton();
+        btncancelar = new javax.swing.JButton();
+        btncerrar = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         tblusuarios = new javax.swing.JScrollPane();
         tblUsuarios = new javax.swing.JTable();
@@ -203,23 +204,89 @@ public class proles extends javax.swing.JPanel {
 
         cmbRol.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        btncerrar.setText("CERRAR");
-        btncerrar.addActionListener(this::btncerrarActionPerformed);
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 
-        btnguardar.setText("GUARDAR");
-        btnguardar.addActionListener(this::btnguardarActionPerformed);
-
-        btneliminar.setText("ELIMINAR");
-        btneliminar.addActionListener(this::btneliminarActionPerformed);
-
-        btneditar.setText("EDITAR");
+        btneditar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/ueditar.png"))); // NOI18N
+        btneditar.setBorder(null);
+        btneditar.setBorderPainted(false);
+        btneditar.setContentAreaFilled(false);
+        btneditar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btneditar.setFocusPainted(false);
         btneditar.addActionListener(this::btneditarActionPerformed);
 
-        btncancelar.setText("CANCELAR");
+        btnguardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/uguardar.png"))); // NOI18N
+        btnguardar.setBorder(null);
+        btnguardar.setBorderPainted(false);
+        btnguardar.setContentAreaFilled(false);
+        btnguardar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnguardar.setFocusPainted(false);
+        btnguardar.addActionListener(this::btnguardarActionPerformed);
+
+        btneliminar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/ubasura.png"))); // NOI18N
+        btneliminar.setBorder(null);
+        btneliminar.setBorderPainted(false);
+        btneliminar.setContentAreaFilled(false);
+        btneliminar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btneliminar.setFocusPainted(false);
+        btneliminar.addActionListener(this::btneliminarActionPerformed);
+
+        btnEstado.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/udesactivar.png"))); // NOI18N
+        btnEstado.setText("DESACTIVAR");
+        btnEstado.setBorder(null);
+        btnEstado.setBorderPainted(false);
+        btnEstado.setContentAreaFilled(false);
+        btnEstado.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnEstado.setFocusPainted(false);
+        btnEstado.addActionListener(this::btnEstadoActionPerformed);
+
+        btncancelar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/ucancelar.png"))); // NOI18N
+        btncancelar.setBorder(null);
+        btncancelar.setBorderPainted(false);
+        btncancelar.setContentAreaFilled(false);
+        btncancelar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btncancelar.setFocusPainted(false);
         btncancelar.addActionListener(this::btncancelarActionPerformed);
 
-        btnEstado.setText("DESACTIVAR");
-        btnEstado.addActionListener(this::btnEstadoActionPerformed);
+        btncerrar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMAGENES/usalir.png"))); // NOI18N
+        btncerrar.setBorder(null);
+        btncerrar.setBorderPainted(false);
+        btncerrar.setContentAreaFilled(false);
+        btncerrar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btncerrar.setFocusPainted(false);
+        btncerrar.addActionListener(this::btncerrarActionPerformed);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btneditar)
+                .addGap(30, 30, 30)
+                .addComponent(btnguardar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                .addComponent(btneliminar)
+                .addGap(27, 27, 27)
+                .addComponent(btnEstado)
+                .addGap(29, 29, 29)
+                .addComponent(btncancelar)
+                .addGap(30, 30, 30)
+                .addComponent(btncerrar)
+                .addGap(26, 26, 26))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btncerrar)
+                    .addComponent(btncancelar)
+                    .addComponent(btnEstado)
+                    .addComponent(btneliminar)
+                    .addComponent(btnguardar)
+                    .addComponent(btneditar))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -228,36 +295,20 @@ public class proles extends javax.swing.JPanel {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(30, 30, 30)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(btneditar)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2)
-                            .addComponent(jLabel5)
                             .addComponent(jLabel6)
                             .addComponent(jLabel4)
-                            .addComponent(btneliminar))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
+                            .addComponent(jLabel5))
+                        .addGap(18, 18, 18)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(cmbTrabajador, javax.swing.GroupLayout.PREFERRED_SIZE, 362, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(txtClave, javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(txtUsuario, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(cmbRol, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap(12, Short.MAX_VALUE))
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addGap(45, 45, 45)
-                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(btnguardar)
-                                    .addComponent(btncancelar))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(btncerrar)
-                                    .addComponent(btnEstado))
-                                .addGap(62, 62, 62))))))
+                            .addComponent(cmbRol, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cmbTrabajador, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtClave, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(39, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -269,32 +320,21 @@ public class proles extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(25, 25, 25)
+                        .addGap(47, 47, 47)
                         .addComponent(txtClave, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addGap(31, 31, 31)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(28, 28, 28)
                         .addComponent(jLabel5)))
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 66, Short.MAX_VALUE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(cmbRol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnguardar)
-                    .addComponent(btncerrar)
-                    .addComponent(btneliminar))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btneditar)
-                    .addComponent(btncancelar)
-                    .addComponent(btnEstado))
-                .addContainerGap())
+                    .addComponent(cmbRol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addGap(34, 34, 34)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(34, 34, 34))
         );
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
@@ -335,8 +375,8 @@ public class proles extends javax.swing.JPanel {
                 .addGap(21, 21, 21)
                 .addGroup(padmusuariosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(padmusuariosLayout.createSequentialGroup()
-                        .addComponent(tblusuarios, javax.swing.GroupLayout.PREFERRED_SIZE, 505, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                        .addComponent(tblusuarios, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel1))
                 .addGap(12, 12, 12)
@@ -550,6 +590,7 @@ public class proles extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel padmusuarios;
     private javax.swing.JTable tblUsuarios;

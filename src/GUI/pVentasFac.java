@@ -694,6 +694,9 @@ public class pVentasFac extends javax.swing.JPanel {
 
         jLabel11.setText("TOTAL");
 
+        txtTotalVenta.setBackground(new java.awt.Color(185, 236, 185));
+        txtTotalVenta.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -805,7 +808,7 @@ public class pVentasFac extends javax.swing.JPanel {
 
     private void btncobrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btncobrarActionPerformed
         dao.CajaDAO cajaDAO = new dao.CajaDAO();
-        dao.VentaDAO ventaDAO = new dao.VentaDAO();   
+        dao.VentaDAO ventaDAO = new dao.VentaDAO();
 
         modelo.Caja cajaActiva = cajaDAO.obtenerCajaActiva(Sesion.getIdUsuario());
         if (cajaActiva == null) {
@@ -888,7 +891,17 @@ public class pVentasFac extends javax.swing.JPanel {
             if (exito) {
                 javax.swing.JOptionPane.showMessageDialog(this, "¡Venta registrada con éxito!\nComprobante N°: " + numeroComp, "Sistema de Ventas", javax.swing.JOptionPane.INFORMATION_MESSAGE);
 
-                // ── AQUÍ: generar y abrir el PDF ──
+                // ── Preguntar si desea imprimir (abrir) la boleta ──
+                int respuestaImprimir = javax.swing.JOptionPane.showConfirmDialog(
+                        this,
+                        "¿Desea imprimir la boleta?",
+                        "Imprimir comprobante",
+                        javax.swing.JOptionPane.YES_NO_OPTION,
+                        javax.swing.JOptionPane.QUESTION_MESSAGE
+                );
+                boolean abrirPdf = (respuestaImprimir == javax.swing.JOptionPane.YES_OPTION);
+
+                // ── Generar el PDF (se guarda SIEMPRE; se abre solo si dijo SÍ) ──
                 String nombreClienteRecibo = (txtcliente.getText() == null || txtcliente.getText().trim().isEmpty())
                         ? "CLIENTE VARIOS" : txtcliente.getText().trim();
 
@@ -897,7 +910,7 @@ public class pVentasFac extends javax.swing.JPanel {
 
                 reportes.GeneradorReciboPDF.generarYAbrir(
                         nuevaVenta, modeloTabla, nombreClienteRecibo,
-                        Sesion.getNombreUsuario(), neto, igvTotal
+                        Sesion.getNombreUsuario(), neto, igvTotal, abrirPdf
                 );
 
                 // 6. Limpiar la interfaz para la siguiente venta y actualizar el correlativo visual
@@ -908,7 +921,6 @@ public class pVentasFac extends javax.swing.JPanel {
             } else {
                 javax.swing.JOptionPane.showMessageDialog(this, "Hubo un error interno. La venta no fue procesada.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
             }
-
         } catch (Exception e) {
             javax.swing.JOptionPane.showMessageDialog(this, "Error de datos: " + e.getMessage(), "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
         }

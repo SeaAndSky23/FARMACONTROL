@@ -22,8 +22,7 @@ import modelo.VentaDTO;
 public class GeneradorReciboPDF {
 
     /**
-     * Genera el PDF del comprobante y lo abre automáticamente (vista previa de
-     * impresión / lector PDF predeterminado del sistema).
+     * Genera el PDF del comprobante y, opcionalmente, lo abre.
      *
      * @param venta Cabecera de la venta ya registrada
      * @param modeloTabla El DefaultTableModel de tblVenta (para sacar el
@@ -32,10 +31,12 @@ public class GeneradorReciboPDF {
      * @param cajero Nombre del cajero logueado
      * @param subtotalNeto Total sin IGV
      * @param igv Monto de IGV
+     * @param abrirPdf true = genera y ABRE el PDF; false = solo lo genera y lo
+     * guarda en la carpeta "recibos" sin abrirlo
      */
     public static void generarYAbrir(VentaDTO venta, DefaultTableModel modeloTabla,
             String nombreCliente, String cajero,
-            double subtotalNeto, double igv) {
+            double subtotalNeto, double igv, boolean abrirPdf) {
 
         // 1. Carpeta destino: /recibos dentro del proyecto (se crea si no existe)
         File carpeta = new File("recibos");
@@ -46,7 +47,7 @@ public class GeneradorReciboPDF {
         String nombreArchivo = "recibos/" + venta.getTipoComprobante() + "_"
                 + venta.getNumeroComprobante() + ".pdf";
 
-        Document documento = new Document(PageSize.A5); // tamaño típico de boleta/ticket
+        Document documento = new Document(PageSize.A5);
 
         try {
             PdfWriter.getInstance(documento, new FileOutputStream(nombreArchivo));
@@ -57,7 +58,6 @@ public class GeneradorReciboPDF {
             Font fNormal = FontFactory.getFont(FontFactory.HELVETICA, 10);
             Font fNegrita = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10);
 
-            // ── ENCABEZADO ──
             Paragraph titulo = new Paragraph("FARMACIA BLASFARMA", fTitulo);
             titulo.setAlignment(Element.ALIGN_CENTER);
             documento.add(titulo);
@@ -69,7 +69,6 @@ public class GeneradorReciboPDF {
             tipoDoc.setSpacingAfter(10f);
             documento.add(tipoDoc);
 
-            // ── DATOS GENERALES ──
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             documento.add(new Paragraph("Fecha: " + sdf.format(new Date()), fNormal));
             documento.add(new Paragraph("Cliente: " + nombreCliente, fNormal));
@@ -77,7 +76,6 @@ public class GeneradorReciboPDF {
             documento.add(new Paragraph("Método de pago: " + venta.getMetodoPago(), fNormal));
             documento.add(Chunk.NEWLINE);
 
-            // ── TABLA DE PRODUCTOS ──
             PdfPTable tabla = new PdfPTable(4);
             tabla.setWidthPercentage(100);
             tabla.setWidths(new float[]{4f, 1.5f, 1.8f, 1.8f});
@@ -87,13 +85,10 @@ public class GeneradorReciboPDF {
             agregarCeldaHeader(tabla, "P.Unit", fNegrita);
             agregarCeldaHeader(tabla, "Subtotal", fNegrita);
 
-            // Columnas reales de tu tblVenta:
-            // 0 CodBarras | 1 Descripcion | 2 Unidad | 3 Cantidad
-            // 4 PrecioUnit | 5 IGV | 6 Subtotal | 7 Multiplo | 8 Id_Prod
             for (int i = 0; i < modeloTabla.getRowCount(); i++) {
                 Object idProd = modeloTabla.getValueAt(i, 8);
                 if (idProd == null || idProd.toString().trim().isEmpty()) {
-                    continue; // salta la fila vacía de escaneo
+                    continue;
                 }
                 String descripcion = String.valueOf(modeloTabla.getValueAt(i, 1));
                 String cantidad = String.valueOf(modeloTabla.getValueAt(i, 3));
@@ -109,7 +104,6 @@ public class GeneradorReciboPDF {
             documento.add(tabla);
             documento.add(Chunk.NEWLINE);
 
-            // ── TOTALES ──
             Paragraph pNeto = new Paragraph("Subtotal: S/ " + String.format("%.2f", subtotalNeto), fNormal);
             pNeto.setAlignment(Element.ALIGN_RIGHT);
             documento.add(pNeto);
@@ -130,9 +124,10 @@ public class GeneradorReciboPDF {
 
             documento.close();
 
-            // 2. Abrir el PDF automáticamente (esto ya sirve como "vista previa de impresión":
-            //    el usuario ve el PDF en su lector predeterminado y desde ahí presiona Ctrl+P)
-            abrirArchivo(new File(nombreArchivo));
+            // 2. Abrir el PDF SOLO si el cajero lo pidió
+            if (abrirPdf) {
+                abrirArchivo(new File(nombreArchivo));
+            }
 
         } catch (DocumentException | java.io.IOException e) {
             JOptionPane.showMessageDialog(null,
