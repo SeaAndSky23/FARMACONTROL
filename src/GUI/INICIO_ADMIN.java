@@ -8,6 +8,7 @@ import java.awt.CardLayout;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
+import dao.VentaDAO;
 
 /**
  *
@@ -45,16 +46,16 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         ImageIcon icono_formulario = new ImageIcon(url);
         setIconImage(icono_formulario.getImage());
     }
-    
+
     private ImageIcon cargarIcono(String ruta) {
-    URL url = getClass().getResource(ruta);
-    if (url != null) {
-        return new ImageIcon(url);
-    } else {
-        System.err.println("Imagen no encontrada: " + ruta);
-        return new ImageIcon(); // Icono vacío como fallback
+        URL url = getClass().getResource(ruta);
+        if (url != null) {
+            return new ImageIcon(url);
+        } else {
+            System.err.println("Imagen no encontrada: " + ruta);
+            return new ImageIcon(); // Icono vacío como fallback
+        }
     }
-}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -281,6 +282,17 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     }//GEN-LAST:event_ming_almacenActionPerformed
 
     private void mreg_ventaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mreg_ventaActionPerformed
+        dao.CajaDAO cajaDAO = new dao.CajaDAO();
+        modelo.Caja cajaActiva = cajaDAO.obtenerCajaActiva(modelo.Sesion.getIdUsuario());
+
+        if (cajaActiva == null) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Debe aperturar SU caja antes de registrar ventas.",
+                    "Caja cerrada",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         pinicioadmin.add(pventas, "registrar venta");
         vista.show(pinicioadmin, "registrar venta");
         SwingUtilities.updateComponentTreeUI(this);

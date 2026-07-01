@@ -22,384 +22,382 @@ import javax.swing.SwingUtilities;
  *
  * @author Usuario
  */
-  
+public class pVentasFac extends javax.swing.JPanel {
 
-    public class pVentasFac extends javax.swing.JPanel {
+    private Integer idClienteSeleccionado = null;
 
-        private Integer idClienteSeleccionado = null;
+    /**
+     * Creates new form pVentasFac
+     */
+    public pVentasFac() {
+        initComponents();
+        configurarTablaVentas();
+        this.revalidate();
+        mostrarCajeroLogueado();
+        configurarEventoTipoComprobante();
+        actualizarSiguienteNumeroEnPantalla();
+        this.repaint();
+        configurarEventoDni();
+        aplicarModo(0);
+    }
 
-        /**
-         * Creates new form pVentasFac
-         */
-        public pVentasFac() {
-            initComponents();
-            configurarTablaVentas();
-            this.revalidate();
-            mostrarCajeroLogueado();
-            configurarEventoTipoComprobante();
-            actualizarSiguienteNumeroEnPantalla();
-            this.repaint();
-            configurarEventoDni();
-            aplicarModo(0);
-        }
+    private DefaultTableModel modeloTabla;
+    private int idClienteActual = 0;
+    private int modoActual = 0;
 
-        private DefaultTableModel modeloTabla;
-        private int idClienteActual = 0;
-        private int modoActual = 0;
+    public void configurarTablaVentas() {
+        // 2. Definir las columnas de la tabla (incluyendo ID oculto para la BD)
+        String[] columnas = {"Código Barras", "Descripción", "Unidad", "Cantidad", "Precio Unit.", "IGV", "Subtotal", "Multiplo", "Id_Prod"};
 
-        public void configurarTablaVentas() {
-            // 2. Definir las columnas de la tabla (incluyendo ID oculto para la BD)
-            String[] columnas = {"Código Barras", "Descripción", "Unidad", "Cantidad", "Precio Unit.", "IGV", "Subtotal", "Multiplo", "Id_Prod"};
+        // 3. Sobrescribir DefaultTableModel para controlar la edición de celdas
+        modeloTabla = new DefaultTableModel(null, columnas) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // Solo se permite editar Código de Barras (0) y Cantidad (3)
+                return column == 0 || column == 3;
+            }
 
-            // 3. Sobrescribir DefaultTableModel para controlar la edición de celdas
-            modeloTabla = new DefaultTableModel(null, columnas) {
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    // Solo se permite editar Código de Barras (0) y Cantidad (3)
-                    return column == 0 || column == 3;
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                // Definir tipos de datos para correcto alineado y ordenamiento
+                switch (columnIndex) {
+                    case 3:
+                        return Integer.class; // Cantidad
+                    case 4:
+                        return Double.class;  // Precio
+                    case 5:
+                        return Double.class;  // IGV
+                    case 6:
+                        return Double.class;  // Subtotal
+                    default:
+                        return String.class;
+                }
+            }
+        };
+
+        // 4. Asignar el modelo a tu JTable (reemplaza 'jTableVentas' por el nombre de tu variable)
+        tblVenta.setModel(modeloTabla);
+
+        // 5. Ocultar la columna 'Id_Prod' (columna index 7) para que no la vea el usuario, pero guarde el ID
+        tblVenta.getColumnModel().getColumn(7).setMinWidth(0);
+        tblVenta.getColumnModel().getColumn(7).setMaxWidth(0);
+        tblVenta.getColumnModel().getColumn(7).setPreferredWidth(0);
+
+        tblVenta.getColumnModel().getColumn(8).setMinWidth(0);
+        tblVenta.getColumnModel().getColumn(8).setMaxWidth(0);
+        tblVenta.getColumnModel().getColumn(8).setPreferredWidth(0);
+
+        // 6. Optimización para Lectores de Códigos de Barras
+        // Hace que la celda guarde el valor inmediatamente al presionar ENTER o cambiar de celda
+        tblVenta.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        tblVenta.setSurrendersFocusOnKeystroke(true);
+
+        // 7. Agregar una fila inicial vacía para empezar a escanear
+        modeloTabla.addRow(new Object[]{"", "", "", 0, 0.0, 0.0, 0.0, 1, ""});
+
+        // 8. Agregar el Listener para detectar cuando se digita el código o cambia la cantidad
+        agregarListenerTabla();
+    }
+
+    private void agregarListenerTabla() {
+        modeloTabla.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                // Evitar procesar si la actualización viene de la estructura de la tabla
+                if (e.getType() != TableModelEvent.UPDATE) {
+                    return;
                 }
 
-                @Override
-                public Class<?> getColumnClass(int columnIndex) {
-                    // Definir tipos de datos para correcto alineado y ordenamiento
-                    switch (columnIndex) {
-                        case 3:
-                            return Integer.class; // Cantidad
-                        case 4:
-                            return Double.class;  // Precio
-                        case 5:
-                            return Double.class;  // IGV
-                        case 6:
-                            return Double.class;  // Subtotal
-                        default:
-                            return String.class;
-                    }
-                }
-            };
+                int fila = e.getFirstRow();
+                int columna = e.getColumn();
+                ProductoDAO prodDAO = new ProductoDAO(); // Tu clase de conexión
 
-            // 4. Asignar el modelo a tu JTable (reemplaza 'jTableVentas' por el nombre de tu variable)
-            tblVenta.setModel(modeloTabla);
+                // Removemos el listener temporalmente para evitar bucles infinitos al editar celdas mediante código
+                modeloTabla.removeTableModelListener(this);
 
-            // 5. Ocultar la columna 'Id_Prod' (columna index 7) para que no la vea el usuario, pero guarde el ID
-            tblVenta.getColumnModel().getColumn(7).setMinWidth(0);
-            tblVenta.getColumnModel().getColumn(7).setMaxWidth(0);
-            tblVenta.getColumnModel().getColumn(7).setPreferredWidth(0);
+                try {
+                    // ESCENARIO A: Se digitó o escaneó un Código de Barras (Columna 0)
+                    if (columna == 0) {
+                        String codigo = (String) modeloTabla.getValueAt(fila, 0);
 
-            tblVenta.getColumnModel().getColumn(8).setMinWidth(0);
-            tblVenta.getColumnModel().getColumn(8).setMaxWidth(0);
-            tblVenta.getColumnModel().getColumn(8).setPreferredWidth(0);
+                        if (codigo != null && !codigo.trim().isEmpty()) {
+                            List<Object[]> presentaciones = prodDAO.listarPresentacionesPorCodigoBarras(codigo.trim());
 
-            // 6. Optimización para Lectores de Códigos de Barras
-            // Hace que la celda guarde el valor inmediatamente al presionar ENTER o cambiar de celda
-            tblVenta.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-            tblVenta.setSurrendersFocusOnKeystroke(true);
+                            if (presentaciones.isEmpty()) {
+                                javax.swing.JOptionPane.showMessageDialog(null, "El código de barras no existe.");
+                                modeloTabla.setValueAt("", fila, 0); // Limpiar celda errónea
+                            } else {
+                                Object[] presSeleccionada = presentaciones.size() == 1
+                                        ? presentaciones.get(0)
+                                        : seleccionarPresentacion(presentaciones);
 
-            // 7. Agregar una fila inicial vacía para empezar a escanear
-            modeloTabla.addRow(new Object[]{"", "", "", 0, 0.0, 0.0, 0.0, 1, ""});
-
-            // 8. Agregar el Listener para detectar cuando se digita el código o cambia la cantidad
-            agregarListenerTabla();
-        }
-
-        private void agregarListenerTabla() {
-            modeloTabla.addTableModelListener(new TableModelListener() {
-                @Override
-                public void tableChanged(TableModelEvent e) {
-                    // Evitar procesar si la actualización viene de la estructura de la tabla
-                    if (e.getType() != TableModelEvent.UPDATE) {
-                        return;
-                    }
-
-                    int fila = e.getFirstRow();
-                    int columna = e.getColumn();
-                    ProductoDAO prodDAO = new ProductoDAO(); // Tu clase de conexión
-
-                    // Removemos el listener temporalmente para evitar bucles infinitos al editar celdas mediante código
-                    modeloTabla.removeTableModelListener(this);
-
-                    try {
-                        // ESCENARIO A: Se digitó o escaneó un Código de Barras (Columna 0)
-                        if (columna == 0) {
-                            String codigo = (String) modeloTabla.getValueAt(fila, 0);
-
-                            if (codigo != null && !codigo.trim().isEmpty()) {
-                                List<Object[]> presentaciones = prodDAO.listarPresentacionesPorCodigoBarras(codigo.trim());
-
-                                if (presentaciones.isEmpty()) {
-                                    javax.swing.JOptionPane.showMessageDialog(null, "El código de barras no existe.");
-                                    modeloTabla.setValueAt("", fila, 0); // Limpiar celda errónea
+                                if (presSeleccionada == null) {
+                                    // El usuario canceló la selección de presentación
+                                    modeloTabla.setValueAt("", fila, 0);
                                 } else {
-                                    Object[] presSeleccionada = presentaciones.size() == 1
-                                            ? presentaciones.get(0)
-                                            : seleccionarPresentacion(presentaciones);
+                                    int idProducto = (int) presSeleccionada[0];
+                                    String descripcion = (String) presSeleccionada[1];
+                                    String unidad = (String) presSeleccionada[3];
+                                    int multiplo = (int) presSeleccionada[4];
+                                    double precio = (double) presSeleccionada[5];
+                                    boolean aplicaIgv = (boolean) presSeleccionada[6];
+                                    int cantidad = 1;
 
-                                    if (presSeleccionada == null) {
-                                        // El usuario canceló la selección de presentación
-                                        modeloTabla.setValueAt("", fila, 0);
-                                    } else {
-                                        int idProducto = (int) presSeleccionada[0];
-                                        String descripcion = (String) presSeleccionada[1];
-                                        String unidad = (String) presSeleccionada[3];
-                                        int multiplo = (int) presSeleccionada[4];
-                                        double precio = (double) presSeleccionada[5];
-                                        boolean aplicaIgv = (boolean) presSeleccionada[6];
-                                        int cantidad = 1;
+                                    // Calcular IGV (Perú 18%) y Subtotal del ítem
+                                    double igvPorcentaje = aplicaIgv ? 0.18 : 0.0;
+                                    double precioUnitarioBase = precio / (1 + igvPorcentaje);
+                                    double igvCalculado = precio - precioUnitarioBase;
+                                    double subtotal = cantidad * precio;
 
-                                        // Calcular IGV (Perú 18%) y Subtotal del ítem
-                                        double igvPorcentaje = aplicaIgv ? 0.18 : 0.0;
-                                        double precioUnitarioBase = precio / (1 + igvPorcentaje);
-                                        double igvCalculado = precio - precioUnitarioBase;
-                                        double subtotal = cantidad * precio;
+                                    // Insertar los datos en la fila actual
+                                    modeloTabla.setValueAt(descripcion, fila, 1);
+                                    modeloTabla.setValueAt(unidad, fila, 2);
+                                    modeloTabla.setValueAt(cantidad, fila, 3);
+                                    modeloTabla.setValueAt(precio, fila, 4);
+                                    modeloTabla.setValueAt(igvCalculado * cantidad, fila, 5);
+                                    modeloTabla.setValueAt(subtotal, fila, 6);
+                                    modeloTabla.setValueAt(multiplo, fila, 7);
+                                    modeloTabla.setValueAt(idProducto, fila, 8);
 
-                                        // Insertar los datos en la fila actual
-                                        modeloTabla.setValueAt(descripcion, fila, 1);
-                                        modeloTabla.setValueAt(unidad, fila, 2);
-                                        modeloTabla.setValueAt(cantidad, fila, 3);
-                                        modeloTabla.setValueAt(precio, fila, 4);
-                                        modeloTabla.setValueAt(igvCalculado * cantidad, fila, 5);
-                                        modeloTabla.setValueAt(subtotal, fila, 6);
-                                        modeloTabla.setValueAt(multiplo, fila, 7);
-                                        modeloTabla.setValueAt(idProducto, fila, 8);
-
-                                        if (fila == modeloTabla.getRowCount() - 1) {
-                                            modeloTabla.addRow(new Object[]{"", "", "", 0, 0.0, 0.0, 0.0, 1, ""});
-                                        }
+                                    if (fila == modeloTabla.getRowCount() - 1) {
+                                        modeloTabla.addRow(new Object[]{"", "", "", 0, 0.0, 0.0, 0.0, 1, ""});
                                     }
                                 }
                             }
-                        } else if (columna == 3) {
-                            Integer cantidad = (Integer) modeloTabla.getValueAt(fila, 3);
-                            Double precio = (Double) modeloTabla.getValueAt(fila, 4);
-                            Integer idProd = (Integer) modeloTabla.getValueAt(fila, 8);
-
-                            if (idProd != null && cantidad != null && cantidad > 0) {
-                                double subtotal = cantidad * precio;
-
-                                double subtotalFiltrado = subtotal;
-
-                                modeloTabla.setValueAt(subtotalFiltrado, fila, 6);
-                            } else if (cantidad != null && cantidad <= 0) {
-                                javax.swing.JOptionPane.showMessageDialog(null, "La cantidad debe ser mayor a 0.");
-                                modeloTabla.setValueAt(1, fila, 3);
-                            }
                         }
+                    } else if (columna == 3) {
+                        Integer cantidad = (Integer) modeloTabla.getValueAt(fila, 3);
+                        Double precio = (Double) modeloTabla.getValueAt(fila, 4);
+                        Integer idProd = (Integer) modeloTabla.getValueAt(fila, 8);
 
-                    } catch (Exception ex) {
-                        System.out.println("Error en eventos de la tabla: " + ex.getMessage());
-                    } finally {
-                        // Volver a activar el Listener pase lo que pase
-                        modeloTabla.addTableModelListener(this);
+                        if (idProd != null && cantidad != null && cantidad > 0) {
+                            double subtotal = cantidad * precio;
 
-                        // Método global tuyo para sumar toda la columna 'Subtotal' y mostrarlo en tus JLabels/JTextFields del panel
-                        calcularTotalesPanel();
+                            double subtotalFiltrado = subtotal;
+
+                            modeloTabla.setValueAt(subtotalFiltrado, fila, 6);
+                        } else if (cantidad != null && cantidad <= 0) {
+                            javax.swing.JOptionPane.showMessageDialog(null, "La cantidad debe ser mayor a 0.");
+                            modeloTabla.setValueAt(1, fila, 3);
+                        }
                     }
+
+                } catch (Exception ex) {
+                    System.out.println("Error en eventos de la tabla: " + ex.getMessage());
+                } finally {
+                    // Volver a activar el Listener pase lo que pase
+                    modeloTabla.addTableModelListener(this);
+
+                    // Método global tuyo para sumar toda la columna 'Subtotal' y mostrarlo en tus JLabels/JTextFields del panel
+                    calcularTotalesPanel();
                 }
-            });
+            }
+        });
+    }
+
+    private Object[] seleccionarPresentacion(List<Object[]> presentaciones) {
+        String[] opciones = new String[presentaciones.size()];
+        for (int i = 0; i < presentaciones.size(); i++) {
+            Object[] p = presentaciones.get(i);
+            String unidad = (String) p[3];
+            int multiplo = (int) p[4];
+            double precio = (double) p[5];
+            opciones[i] = String.format("%s (x%d) - S/ %.2f", unidad, multiplo, precio);
         }
 
-        private Object[] seleccionarPresentacion(List<Object[]> presentaciones) {
-            String[] opciones = new String[presentaciones.size()];
-            for (int i = 0; i < presentaciones.size(); i++) {
-                Object[] p = presentaciones.get(i);
-                String unidad = (String) p[3];
-                int multiplo = (int) p[4];
-                double precio = (double) p[5];
-                opciones[i] = String.format("%s (x%d) - S/ %.2f", unidad, multiplo, precio);
-            }
+        String seleccion = (String) javax.swing.JOptionPane.showInputDialog(
+                null,
+                "Este producto tiene varias presentaciones. Seleccione una:",
+                "Seleccionar presentación",
+                javax.swing.JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]
+        );
 
-            String seleccion = (String) javax.swing.JOptionPane.showInputDialog(
-                    null,
-                    "Este producto tiene varias presentaciones. Seleccione una:",
-                    "Seleccionar presentación",
-                    javax.swing.JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    opciones,
-                    opciones[0]
+        if (seleccion == null) {
+            return null;
+        }
+
+        int indice = java.util.Arrays.asList(opciones).indexOf(seleccion);
+        return presentaciones.get(indice);
+    }
+
+    private void calcularTotalesPanel() {
+        double totalGeneral = 0.0;
+        double totalIgv = 0.0;
+        double netoGeneral = 0.0;
+
+        for (int i = 0; i < modeloTabla.getRowCount(); i++) {
+            Object subtotalObj = modeloTabla.getValueAt(i, 6);
+            Object igvObj = modeloTabla.getValueAt(i, 5);
+
+            if (subtotalObj != null && (double) subtotalObj > 0) {
+                totalGeneral += (double) subtotalObj;
+                totalIgv += (double) igvObj;
+            }
+        }
+
+        netoGeneral = totalGeneral - totalIgv;
+
+        // Setear valores en tus JTextFields de la interfaz gráfica formateados a 2 decimales
+        txtNeto.setText(String.format("%.2f", netoGeneral));
+        txtIgvTotal.setText(String.format("%.2f", totalIgv));
+        txtTotalVenta.setText(String.format("%.2f", totalGeneral));
+    }
+
+    //TIPO COMPROVANTE DE VENTA
+    private void configurarEventoTipoComprobante() {
+        cboMetodoPago1.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                actualizarSiguienteNumeroEnPantalla();
+            }
+        });
+    }
+
+    private void actualizarSiguienteNumeroEnPantalla() {
+        VentaDAO ventaDAO = new VentaDAO();
+        String tipoComprobante = obtenerTipoComprobanteSeleccionado();
+        String siguienteNumero = ventaDAO.generarSiguienteNumeroComprobante(tipoComprobante);
+        txtNumeroBoleta.setText(siguienteNumero);
+    }
+
+    private String obtenerTipoComprobanteSeleccionado() {
+        if (cboMetodoPago1.getSelectedItem() == null) {
+            return "BOLETA";
+        }
+        return cboMetodoPago1.getSelectedItem().toString().trim();
+    }
+
+    //CAJERO
+    private void mostrarCajeroLogueado() {
+        // Validamos que la sesión no esté vacía
+        if (Sesion.nombreUsuario != null && !Sesion.nombreUsuario.isEmpty()) {
+
+            tcajero.setText(Sesion.nombreUsuario);
+
+            tcajero.setEditable(false);
+        } else {
+            tcajero.setText("SIN CAJERO ACTIVO");
+        }
+    }
+
+    //CLIENTES
+    private void configurarEventoDni() {
+        // Evento cuando el usuario presiona ENTER en el campo DNI
+        txtdni.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buscarORegistrarCliente();
+            }
+        });
+
+        // Evento opcional: cuando el usuario cambia de casilla (pierde el foco)
+        txtdni.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                buscarORegistrarCliente();
+            }
+        });
+    }
+
+    private void buscarORegistrarCliente() {
+        String dni = txtdni.getText().trim();
+
+        // Validar que el DNI tenga una longitud correcta (Ej: 8 dígitos en Perú)
+        if (dni.isEmpty() || dni.length() != 8) {
+            return;
+        }
+
+        // Instanciamos el DAO de clientes (Debes tener uno similar a ProductoDAO)
+        dao.ClienteDAO clienteDAO = new dao.ClienteDAO();
+        Object[] cliente = clienteDAO.buscarPorDni(dni);
+
+        if (cliente != null) {
+            idClienteSeleccionado = (int) cliente[0]; // Guardamos el ID oculto
+            String nombreCompleto = (String) cliente[1];
+            String celular = (String) cliente[2];
+
+            txtcliente.setText(nombreCompleto);
+            txtelef.setText(celular);
+        } else {
+            // Si NO existe, abrimos la ventana emergente
+            int respuesta = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "El cliente con DNI " + dni + " no está registrado.\n¿Desea registrarlo ahora?",
+                    "Cliente no encontrado",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE
             );
 
-            if (seleccion == null) {
-                return null;
-            }
+            if (respuesta == javax.swing.JOptionPane.YES_OPTION) {
+                // Abrir JDialog emergente de forma modal (bloquea la ventana de atrás hasta que termine)
+                FormularioClienteDialog dialog = new FormularioClienteDialog(null, true, dni);
+                dialog.setVisible(true);
 
-            int indice = java.util.Arrays.asList(opciones).indexOf(seleccion);
-            return presentaciones.get(indice);
-        }
-
-        private void calcularTotalesPanel() {
-            double totalGeneral = 0.0;
-            double totalIgv = 0.0;
-            double netoGeneral = 0.0;
-
-            for (int i = 0; i < modeloTabla.getRowCount(); i++) {
-                Object subtotalObj = modeloTabla.getValueAt(i, 6);
-                Object igvObj = modeloTabla.getValueAt(i, 5);
-
-                if (subtotalObj != null && (double) subtotalObj > 0) {
-                    totalGeneral += (double) subtotalObj;
-                    totalIgv += (double) igvObj;
-                }
-            }
-
-            netoGeneral = totalGeneral - totalIgv;
-
-            // Setear valores en tus JTextFields de la interfaz gráfica formateados a 2 decimales
-            txtNeto.setText(String.format("%.2f", netoGeneral));
-            txtIgvTotal.setText(String.format("%.2f", totalIgv));
-            txtTotalVenta.setText(String.format("%.2f", totalGeneral));
-        }
-
-        //TIPO COMPROVANTE DE VENTA
-        private void configurarEventoTipoComprobante() {
-            cboMetodoPago1.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    actualizarSiguienteNumeroEnPantalla();
-                }
-            });
-        }
-
-        private void actualizarSiguienteNumeroEnPantalla() {
-            VentaDAO ventaDAO = new VentaDAO();
-            String tipoComprobante = obtenerTipoComprobanteSeleccionado();
-            String siguienteNumero = ventaDAO.generarSiguienteNumeroComprobante(tipoComprobante);
-            txtNumeroBoleta.setText(siguienteNumero);
-        }
-
-        private String obtenerTipoComprobanteSeleccionado() {
-            if (cboMetodoPago1.getSelectedItem() == null) {
-                return "BOLETA";
-            }
-            return cboMetodoPago1.getSelectedItem().toString().trim();
-        }
-
-        //CAJERO
-        private void mostrarCajeroLogueado() {
-            // Validamos que la sesión no esté vacía
-            if (Sesion.nombreUsuario != null && !Sesion.nombreUsuario.isEmpty()) {
-
-                tcajero.setText(Sesion.nombreUsuario);
-
-                tcajero.setEditable(false);
+                // Al cerrar el diálogo, volvemos a buscar para cargar los datos recién creados
+                buscarORegistrarCliente();
             } else {
-                tcajero.setText("SIN CAJERO ACTIVO");
+                // Si cancela, limpiamos el DNI para evitar errores
+                txtdni.setText("");
+                txtcliente.setText("");
+                txtelef.setText("");
             }
         }
+    }
 
-        //CLIENTES
-        private void configurarEventoDni() {
-            // Evento cuando el usuario presiona ENTER en el campo DNI
-            txtdni.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    buscarORegistrarCliente();
-                }
-            });
-
-            // Evento opcional: cuando el usuario cambia de casilla (pierde el foco)
-            txtdni.addFocusListener(new java.awt.event.FocusAdapter() {
-                @Override
-                public void focusLost(java.awt.event.FocusEvent evt) {
-                    buscarORegistrarCliente();
-                }
-            });
+    private void aplicarModo(int modo) {
+        modoActual = modo;
+        switch (modo) {
+            case 0: // NUEVA VENTA
+                btncobrar.setEnabled(true);
+                btnbuscar.setEnabled(true);
+                btnsalir.setEnabled(true);
+                setFormularioEditable(true);
+                break;
+            case 1: // LECTURA (venta consultada, solo ver)
+                btncobrar.setEnabled(false);
+                btnbuscar.setEnabled(true);
+                btnsalir.setEnabled(true);
+                setFormularioEditable(false);
+                break;
         }
+    }
 
-        private void buscarORegistrarCliente() {
-            String dni = txtdni.getText().trim();
+    private void setFormularioEditable(boolean editable) {
+        txtdni.setEditable(editable);
+        txtcliente.setEditable(editable);
+        txtelef.setEditable(editable);
+        cboMetodoPago.setEnabled(editable);
+        cboMetodoPago1.setEnabled(editable);
+        tblVenta.setEnabled(editable);
+    }
 
-            // Validar que el DNI tenga una longitud correcta (Ej: 8 dígitos en Perú)
-            if (dni.isEmpty() || dni.length() != 8) {
-                return;
-            }
+    //LIMPIAR
+    private void limpiarFormularioVenta() {
+        txtNeto.setText("0.00");
+        txtIgvTotal.setText("0.00");
+        txtTotalVenta.setText("0.00");
+        txtdni.setText("");
+        txtcliente.setText("");
+        txtelef.setText("");
 
-            // Instanciamos el DAO de clientes (Debes tener uno similar a ProductoDAO)
-            dao.ClienteDAO clienteDAO = new dao.ClienteDAO();
-            Object[] cliente = clienteDAO.buscarPorDni(dni);
+        this.idClienteSeleccionado = null;
+        this.idClienteActual = 0;
 
-            if (cliente != null) {
-                idClienteSeleccionado = (int) cliente[0]; // Guardamos el ID oculto
-                String nombreCompleto = (String) cliente[1];
-                String celular = (String) cliente[2];
-
-                txtcliente.setText(nombreCompleto);
-                txtelef.setText(celular);
-            } else {
-                // Si NO existe, abrimos la ventana emergente
-                int respuesta = javax.swing.JOptionPane.showConfirmDialog(
-                        this,
-                        "El cliente con DNI " + dni + " no está registrado.\n¿Desea registrarlo ahora?",
-                        "Cliente no encontrado",
-                        javax.swing.JOptionPane.YES_NO_OPTION,
-                        javax.swing.JOptionPane.QUESTION_MESSAGE
-                );
-
-                if (respuesta == javax.swing.JOptionPane.YES_OPTION) {
-                    // Abrir JDialog emergente de forma modal (bloquea la ventana de atrás hasta que termine)
-                    FormularioClienteDialog dialog = new FormularioClienteDialog(null, true, dni);
-                    dialog.setVisible(true);
-
-                    // Al cerrar el diálogo, volvemos a buscar para cargar los datos recién creados
-                    buscarORegistrarCliente();
-                } else {
-                    // Si cancela, limpiamos el DNI para evitar errores
-                    txtdni.setText("");
-                    txtcliente.setText("");
-                    txtelef.setText("");
-                }
-            }
+        while (modeloTabla.getRowCount() > 0) {
+            modeloTabla.removeRow(0);
         }
+        modeloTabla.addRow(new Object[]{"", "", "", 0, 0.0, 0.0, 0.0, ""});
+    }
 
-        private void aplicarModo(int modo) {
-            modoActual = modo;
-            switch (modo) {
-                case 0: // NUEVA VENTA
-                    btncobrar.setEnabled(true);
-                    btnbuscar.setEnabled(true);
-                    btnsalir.setEnabled(true);
-                    setFormularioEditable(true);
-                    break;
-                case 1: // LECTURA (venta consultada, solo ver)
-                    btncobrar.setEnabled(false);
-                    btnbuscar.setEnabled(true);
-                    btnsalir.setEnabled(true);
-                    setFormularioEditable(false);
-                    break;
-            }
-        }
-
-        private void setFormularioEditable(boolean editable) {
-            txtdni.setEditable(editable);
-            txtcliente.setEditable(editable);
-            txtelef.setEditable(editable);
-            cboMetodoPago.setEnabled(editable);
-            cboMetodoPago1.setEnabled(editable);
-            tblVenta.setEnabled(editable);
-        }
-
-        //LIMPIAR
-        private void limpiarFormularioVenta() {
-            txtNeto.setText("0.00");
-            txtIgvTotal.setText("0.00");
-            txtTotalVenta.setText("0.00");
-            txtdni.setText("");
-            txtcliente.setText("");
-            txtelef.setText("");
-
-            this.idClienteSeleccionado = null;
-            this.idClienteActual = 0;
-
-            while (modeloTabla.getRowCount() > 0) {
-                modeloTabla.removeRow(0);
-            }
-            modeloTabla.addRow(new Object[]{"", "", "", 0, 0.0, 0.0, 0.0, ""});
-        }
-
-        /**
-         * This method is called from within the constructor to initialize the
-         * form. WARNING: Do NOT modify this code. The content of this method is
-         * always regenerated by the Form Editor.
-         */
-        @SuppressWarnings("unchecked")
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -779,7 +777,7 @@ import javax.swing.SwingUtilities;
                         .addGap(46, 46, 46)
                         .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(123, Short.MAX_VALUE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -806,14 +804,17 @@ import javax.swing.SwingUtilities;
     }//GEN-LAST:event_btnsalirActionPerformed
 
     private void btncobrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btncobrarActionPerformed
-        VentaDAO ventaDAO = new VentaDAO();
+        dao.CajaDAO cajaDAO = new dao.CajaDAO();
+        dao.VentaDAO ventaDAO = new dao.VentaDAO();   
 
-        // 1. Validar si hay una caja abierta antes de vender
-        int idCajaActiva = ventaDAO.obtenerIdCajaAbierta();
-        if (idCajaActiva == 0) {
-            javax.swing.JOptionPane.showMessageDialog(this, "No puede cobrar. Debe realizar primero la APERTURA DE CAJA.", "Caja Cerrada", javax.swing.JOptionPane.WARNING_MESSAGE);
+        modelo.Caja cajaActiva = cajaDAO.obtenerCajaActiva(Sesion.getIdUsuario());
+        if (cajaActiva == null) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "No puede cobrar. Debe realizar primero la APERTURA DE CAJA.",
+                    "Caja Cerrada", javax.swing.JOptionPane.WARNING_MESSAGE);
             return;
         }
+        int idCajaActiva = cajaActiva.getIdCaja();
 
         // 2. Validar que la tabla tenga al menos un producto válido
         boolean hayProductoValido = false;
@@ -886,6 +887,18 @@ import javax.swing.SwingUtilities;
 
             if (exito) {
                 javax.swing.JOptionPane.showMessageDialog(this, "¡Venta registrada con éxito!\nComprobante N°: " + numeroComp, "Sistema de Ventas", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+                // ── AQUÍ: generar y abrir el PDF ──
+                String nombreClienteRecibo = (txtcliente.getText() == null || txtcliente.getText().trim().isEmpty())
+                        ? "CLIENTE VARIOS" : txtcliente.getText().trim();
+
+                double neto = Double.parseDouble(txtNeto.getText().replace(",", "."));
+                double igvTotal = Double.parseDouble(txtIgvTotal.getText().replace(",", "."));
+
+                reportes.GeneradorReciboPDF.generarYAbrir(
+                        nuevaVenta, modeloTabla, nombreClienteRecibo,
+                        Sesion.getNombreUsuario(), neto, igvTotal
+                );
 
                 // 6. Limpiar la interfaz para la siguiente venta y actualizar el correlativo visual
                 limpiarFormularioVenta();

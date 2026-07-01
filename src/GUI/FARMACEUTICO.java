@@ -140,14 +140,14 @@ public class FARMACEUTICO extends javax.swing.JFrame {
     }//GEN-LAST:event_maperturafActionPerformed
 
     private void mrventafActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mrventafActionPerformed
-        // Verificar caja antes de mostrar el panel
-        VentaDAO ventaDAO = new VentaDAO();
-        if (ventaDAO.obtenerIdCajaAbierta() == 0) {
+        dao.CajaDAO cajaDAO = new dao.CajaDAO();
+        modelo.Caja cajaActiva = cajaDAO.obtenerCajaActiva(modelo.Sesion.getIdUsuario());
+
+        if (cajaActiva == null) {
             javax.swing.JOptionPane.showMessageDialog(this,
-                    "Debe aperturar la caja antes de registrar ventas.",
-                    "Caja cerrada",
-                    javax.swing.JOptionPane.WARNING_MESSAGE);
-            return;  
+                    "Debe aperturar SU caja antes de registrar ventas.",
+                    "Caja cerrada", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
         }
         piniciofarma.add(pventas, "registrar venta");
         vista.show(piniciofarma, "registrar venta");
