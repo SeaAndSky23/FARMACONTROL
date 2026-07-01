@@ -169,11 +169,52 @@ public class UsuarioDAO {
         try (Connection con = ConexioDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idUsuario);
-
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Error al eliminar usuario: " + e.getMessage());
+            // Error 547 = violación de FK en SQL Server
+            if (e.getErrorCode() == 547) {
+                System.out.println("No se puede eliminar: el usuario tiene ventas o cajas registradas.");
+            } else {
+                System.out.println("Error al eliminar usuario: " + e.getMessage());
+            }
+            return false;
+        }
+    }
+
+    // Actualizar usuario existente.
+    public boolean actualizarUsuario(int idUsuario, String nombreUsuario, String contrasena, int idRol) {
+        boolean cambiaClave = contrasena != null && !contrasena.trim().isEmpty();
+        String sql = cambiaClave
+                ? "UPDATE USUARIOS SET Nombre_usuario = ?, Contrasena = ?, Id_rol = ? WHERE Id_usuario = ?"
+                : "UPDATE USUARIOS SET Nombre_usuario = ?, Id_rol = ? WHERE Id_usuario = ?";
+
+        try (Connection con = ConexioDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+            if (cambiaClave) {
+                ps.setString(1, nombreUsuario);
+                ps.setString(2, contrasena);
+                ps.setInt(3, idRol);
+                ps.setInt(4, idUsuario);
+            } else {
+                ps.setString(1, nombreUsuario);
+                ps.setInt(2, idRol);
+                ps.setInt(3, idUsuario);
+            }
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Error al actualizar usuario: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean cambiarEstadoUsuario(int idUsuario, boolean activo) {
+        String sql = "UPDATE USUARIOS SET Estado = ? WHERE Id_usuario = ?";
+        try (Connection con = ConexioDB.getConexion(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setBoolean(1, activo);
+            ps.setInt(2, idUsuario);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Error al cambiar estado de usuario: " + e.getMessage());
             return false;
         }
     }

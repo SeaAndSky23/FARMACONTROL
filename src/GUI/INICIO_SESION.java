@@ -213,6 +213,7 @@ public class INICIO_SESION extends javax.swing.JFrame {
         } else {
             JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos (o cuenta inactiva).");
         }
+        
     }//GEN-LAST:event_btningresarActionPerformed
 
     private void btnsalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnsalirActionPerformed

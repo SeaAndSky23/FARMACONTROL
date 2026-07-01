@@ -454,7 +454,7 @@ public class pVentasFac extends javax.swing.JPanel {
 
         jLabel6.setText("FORMA DE PAGO");
 
-        cboMetodoPago.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "EFECTIVO", "BILLETERA DIGITAL" }));
+        cboMetodoPago.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "EFECTIVO", "BILLETERA DIGITAL", "TARJETA", "TRANSFERENCIA" }));
 
         cboMetodoPago1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "BOLETA", "FACTURA", "NOTA DE VENTA" }));
 

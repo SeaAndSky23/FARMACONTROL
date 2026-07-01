@@ -192,9 +192,11 @@
             <Component class="javax.swing.JComboBox" name="cboMetodoPago">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="2">
+                  <StringArray count="4">
                     <StringItem index="0" value="EFECTIVO"/>
                     <StringItem index="1" value="BILLETERA DIGITAL"/>
+                    <StringItem index="2" value="TARJETA"/>
+                    <StringItem index="3" value="TRANSFERENCIA"/>
                   </StringArray>
                 </Property>
               </Properties>

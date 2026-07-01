@@ -16,7 +16,7 @@ public class ConexioDB {
 
     private static final String URL = "jdbc:sqlserver://127.0.0.1:1433;"
             + "databaseName=BDFARMACONTROL;"
-            + "encrypt=true;"
+            + "encrypt=false;"
             + "trustServerCertificate=true;"
             + "loginTimeout=5;";
     private static final String USER = "sa";
