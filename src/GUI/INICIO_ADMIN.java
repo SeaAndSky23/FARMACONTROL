@@ -27,6 +27,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     proles panelusuarios = new proles();
     ptrabajadores paneltrabajadores = new ptrabajadores();
     putilidades panelutilidades = new putilidades();
+    pranking prankingproductos = new pranking();
     CardLayout vista;
 
     private int idUsuarioLogueado;
@@ -46,16 +47,16 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         ImageIcon icono_formulario = new ImageIcon(url);
         setIconImage(icono_formulario.getImage());
     }
-    
+
     private ImageIcon cargarIcono(String ruta) {
-    URL url = getClass().getResource(ruta);
-    if (url != null) {
-        return new ImageIcon(url);
-    } else {
-        System.err.println("Imagen no encontrada: " + ruta);
-        return new ImageIcon(); // Icono vacío como fallback
+        URL url = getClass().getResource(ruta);
+        if (url != null) {
+            return new ImageIcon(url);
+        } else {
+            System.err.println("Imagen no encontrada: " + ruta);
+            return new ImageIcon(); // Icono vacío como fallback
+        }
     }
-}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -89,7 +90,7 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         jMenu5 = new javax.swing.JMenu();
         creportes = new javax.swing.JMenu();
         m_utilidades = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
+        ran_product = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("BIENVENIDO AL SISTEMA DE CONTROL COMERCIAL");
@@ -225,8 +226,9 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         m_utilidades.addActionListener(this::m_utilidadesActionPerformed);
         creportes.add(m_utilidades);
 
-        jMenuItem2.setText("RANKING PRODUCTOS");
-        creportes.add(jMenuItem2);
+        ran_product.setText("RANKING PRODUCTOS");
+        ran_product.addActionListener(this::ran_productActionPerformed);
+        creportes.add(ran_product);
 
         jMenuBar1.add(creportes);
 
@@ -312,6 +314,14 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
         this.repaint();
     }//GEN-LAST:event_m_utilidadesActionPerformed
 
+    private void ran_productActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ran_productActionPerformed
+        pinicioadmin.add(prankingproductos, "ranqueando productos");
+        vista.show(pinicioadmin, "ranqueando productos");
+        prankingproductos.cargarGraficoRanking(); // refresca con datos actuales de la BD
+        SwingUtilities.updateComponentTreeUI(this);
+        this.repaint();
+    }//GEN-LAST:event_ran_productActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -351,7 +361,6 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenu jMenu5;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem m_utilidades;
     private javax.swing.JMenuItem mc_apertura;
     private javax.swing.JMenuItem mc_cierre;
@@ -362,5 +371,6 @@ public class INICIO_ADMIN extends javax.swing.JFrame {
     private javax.swing.JMenuItem mtrabajadores;
     private javax.swing.JMenuItem musuarios;
     private javax.swing.JPanel pinicioadmin;
+    private javax.swing.JMenuItem ran_product;
     // End of variables declaration//GEN-END:variables
 }

@@ -410,4 +410,44 @@ public class ProductoDAO {
         }
         return -1;
     }
+
+    public List<Object[]> obtenerTop5MasVendidos() {
+        List<Object[]> lista = new ArrayList<>();
+        String sql = "SELECT TOP 5 (p.descripcion + ' ' + m.nombre_marca) AS producto, "
+                + "SUM(dv.Cantidad) AS total_vendido "
+                + "FROM DETALLE_VENTA dv "
+                + "INNER JOIN PRODUCTO p ON dv.Id_producto = p.Id_producto "
+                + "INNER JOIN MARCA m ON p.Id_marca = m.Id_marca "
+                + "GROUP BY p.Id_producto, p.descripcion, m.nombre_marca "
+                + "ORDER BY total_vendido DESC";
+
+        try (PreparedStatement pst = cn.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                lista.add(new Object[]{rs.getString("producto"), rs.getInt("total_vendido")});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    public List<Object[]> obtenerTop5MenosVendidos() {
+        List<Object[]> lista = new ArrayList<>();
+        String sql = "SELECT TOP 5 (p.descripcion + ' ' + m.nombre_marca) AS producto, "
+                + "ISNULL(SUM(dv.Cantidad), 0) AS total_vendido "
+                + "FROM PRODUCTO p "
+                + "INNER JOIN MARCA m ON p.Id_marca = m.Id_marca "
+                + "LEFT JOIN DETALLE_VENTA dv ON dv.Id_producto = p.Id_producto "
+                + "GROUP BY p.Id_producto, p.descripcion, m.nombre_marca "
+                + "ORDER BY total_vendido ASC";
+
+        try (PreparedStatement pst = cn.prepareStatement(sql); ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                lista.add(new Object[]{rs.getString("producto"), rs.getInt("total_vendido")});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
 }

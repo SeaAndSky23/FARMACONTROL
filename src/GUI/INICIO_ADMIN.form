@@ -294,10 +294,13 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="m_utilidadesActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
+            <MenuItem class="javax.swing.JMenuItem" name="ran_product">
               <Properties>
                 <Property name="text" type="java.lang.String" value="RANKING PRODUCTOS"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ran_productActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
